@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../services/supabase.js";
+import supabase from "../services/supabase.js";
 import VibeService from "../services/vibe.service.js";
 import ManifestService from "../services/manifest.service.js";
 

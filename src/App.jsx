@@ -1,40 +1,89 @@
-import React, { useEffect, useState } from "react";
-import AppRouter from "./navigation/AppRouter";
-import authService from "./services/auth.service";
+// src/App.jsx
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-const App = () => {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+import Login from "./pages/Login";
+import Magic16 from "./pages/Magic16";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import Vibe from "./pages/Vibe";
+import VibeCreate from "./pages/VibeCreate";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        // Safety: Prevent hanging forever
-        const currentUser = await Promise.race([
-          authService.getCurrentUser(),
-          new Promise((resolve) => setTimeout(() => resolve(null), 3000)) // fallback after 3s
-        ]);
-        setUser(currentUser);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    init();
-  }, []);
-
-  if (loading) {
-    // Loader with fallback text to prevent white screen
-    return (
-      <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", background: "#f5f5f5" }}>
-        <h2 style={{ color: "#333" }}>Loading ManifiX...</h2>
-      </div>
-    );
+// Simple protected route wrapper
+const PrivateRoute = ({ user, children }) => {
+  if (!user) {
+    return <Navigate to="/" replace />;
   }
-
-  return <AppRouter user={user} />;
+  return children;
 };
 
-export default App;
+const AppRouter = ({ user }) => {
+  return (
+    <Routes>
+      {/* Public */}
+      <Route path="/" element={<Login />} />
+
+      {/* Protected */}
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute user={user}>
+            <Dashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/magic16"
+        element={
+          <PrivateRoute user={user}>
+            <Magic16 />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute user={user}>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <PrivateRoute user={user}>
+            <Settings />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/vibe"
+        element={
+          <PrivateRoute user={user}>
+            <Vibe />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/vibe/create"
+        element={
+          <PrivateRoute user={user}>
+            <VibeCreate />
+          </PrivateRoute>
+        }
+      />
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
+export default AppRouter;

@@ -22,6 +22,9 @@ export { default as useOfflineCache } from "./useOfflineCache";
 export { default as useQuickReplies } from "./useQuickReplies";
 export { default as useVoice } from "./useVoice";
 export { default as useVoiceCommands } from "./useVoiceCommands";
+export { default as useVibe } from "./useVibe";
+export { default as useMagic16 } from "./useMagic16";
+export { default as useVoice } from "./useVoice";
 
 
 

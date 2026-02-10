@@ -1,46 +1,41 @@
 import React, { useState } from "react";
-import { useVibe } from "@/hooks";
 import { useNavigate } from "react-router-dom";
+import { useVibe } from "../hooks/useVibe";
 
 export default function VibeCreate() {
   const navigate = useNavigate();
   const { createVibe } = useVibe();
 
   const [text, setText] = useState("");
-  const [mood, setMood] = useState("happy"); // default mood
+  const [mood, setMood] = useState("happy");
   const [musicURL, setMusicURL] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ==========================
-  // Handlers
-  // ==========================
   const handleSubmit = async () => {
     if (!text && !musicURL) {
       alert("Please add text or music for your vibe 🎵");
       return;
     }
+
     setLoading(true);
     try {
       await createVibe({ text, mood, musicURL });
-      alert("Vibe shared successfully! ✨");
-      navigate("/vibe"); // go to Vibe feed
+      alert("Vibe shared successfully ✨");
+      navigate("/vibe");
     } catch (err) {
-      console.error(err);
-      alert("Oops! Something went wrong 😔");
+      console.error("Create vibe error:", err);
+      alert("Something went wrong 😔");
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================
-  // Render
-  // ==========================
   return (
     <div className="vibe-create-container">
-      <h1 className="title">Share Your Vibe 🌈</h1>
+      <h1>Share Your Vibe 🌈</h1>
 
-      <div className="vibe-section">
-        <label className="label">Your Vibe Text</label>
+      <div>
+        <label>Your Vibe</label>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -49,12 +44,9 @@ export default function VibeCreate() {
         />
       </div>
 
-      <div className="vibe-section">
-        <label className="label">Mood</label>
-        <select
-          value={mood}
-          onChange={(e) => setMood(e.target.value)}
-        >
+      <div>
+        <label>Mood</label>
+        <select value={mood} onChange={(e) => setMood(e.target.value)}>
           <option value="happy">😊 Happy</option>
           <option value="sad">😢 Sad</option>
           <option value="excited">🤩 Excited</option>
@@ -63,30 +55,21 @@ export default function VibeCreate() {
         </select>
       </div>
 
-      <div className="vibe-section">
-        <label className="label">Music URL (optional)</label>
+      <div>
+        <label>Music URL (optional)</label>
         <input
           type="url"
           value={musicURL}
           onChange={(e) => setMusicURL(e.target.value)}
-          placeholder="Paste Spotify / YouTube link"
+          placeholder="Spotify / YouTube link"
         />
       </div>
 
-      <button
-        className="primary-btn"
-        onClick={handleSubmit}
-        disabled={loading}
-      >
+      <button onClick={handleSubmit} disabled={loading}>
         {loading ? "Sharing..." : "Share Vibe"}
       </button>
 
-      <button
-        className="secondary-btn"
-        onClick={() => navigate("/vibe")}
-      >
-        Cancel
-      </button>
+      <button onClick={() => navigate("/vibe")}>Cancel</button>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useMagic16, useVoice } from "@/hooks";
+import  useMagic16  from "../hooks/useMagic16";
+import useVoice from "../hooks/useVoice";
 
 const TOTAL_YOGA = 8 * 60;       // 8 minutes
 const TOTAL_MEDITATION = 8 * 60; // 8 minutes

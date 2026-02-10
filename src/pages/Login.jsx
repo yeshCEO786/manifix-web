@@ -8,7 +8,6 @@ import { isValidEmail, isValidPassword } from "../utils/validators";
 
 import Logo from "../assets/logo.svg";
 
-
 const Login = () => {
   const navigate = useNavigate();
 
@@ -42,10 +41,12 @@ const Login = () => {
     }
 
     try {
+      const trimmedEmail = email.trim();
+
       const user =
         mode === "login"
-          ? await authService.login(email, password)
-          : await authService.signUp(email, password);
+          ? await authService.login(trimmedEmail, password)
+          : await authService.signUp(trimmedEmail, password);
 
       if (user) {
         voiceService?.speak?.(
@@ -56,6 +57,7 @@ const Login = () => {
         navigate("/dashboard");
       }
     } catch (err) {
+      console.error("Auth Error:", err);
       setErrorMsg(err?.message || "❌ Authentication failed");
     } finally {
       setLoading(false);
@@ -85,6 +87,7 @@ const Login = () => {
             value={email}
             autoComplete="email"
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
 
           <input
@@ -93,11 +96,12 @@ const Login = () => {
             value={password}
             autoComplete="current-password"
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
           />
 
           {errorMsg && <p className="error-msg">{errorMsg}</p>}
 
-          <button className="btn" disabled={loading}>
+          <button className="btn" type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
 

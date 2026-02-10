@@ -1,61 +1,50 @@
 import { useEffect, useRef, useState } from "react";
 
-const TOTAL_TIME = 16 * 60; // seconds
+const TOTAL_TIME = 16 * 60;
 const YOGA_TIME = 8 * 60;
-const MEDITATION_TIME = 8 * 60;
 
 export default function useMagic16() {
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_TIME);
-  const [phase, setPhase] = useState("idle"); // idle | yoga | meditation | done
+  const [phase, setPhase] = useState(null);
   const [running, setRunning] = useState(false);
-
   const intervalRef = useRef(null);
 
   useEffect(() => {
     if (!running) return;
 
     intervalRef.current = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
           clearInterval(intervalRef.current);
           setRunning(false);
-          setPhase("done");
+          setPhase(null);
           return 0;
         }
 
-        if (prev === MEDITATION_TIME + 1) {
-          setPhase("meditation");
-        }
-
-        return prev - 1;
+        if (s === YOGA_TIME) setPhase("meditation");
+        return s - 1;
       });
     }, 1000);
 
     return () => clearInterval(intervalRef.current);
   }, [running]);
 
-  const start = () => {
+  const startSession = () => {
     setPhase("yoga");
     setSecondsLeft(TOTAL_TIME);
     setRunning(true);
   };
 
-  const pause = () => setRunning(false);
-  const resume = () => setRunning(true);
-
-  const reset = () => {
+  const stopSession = () => {
     setRunning(false);
-    setPhase("idle");
-    setSecondsLeft(TOTAL_TIME);
+    setPhase(null);
   };
 
   return {
-    secondsLeft,
     phase,
-    running,
-    start,
-    pause,
-    resume,
-    reset,
+    startSession,
+    stopSession,
+    progress: ((TOTAL_TIME - secondsLeft) / TOTAL_TIME) * 100,
+    completed: secondsLeft === 0,
   };
 }
