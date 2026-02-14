@@ -1,81 +1,35 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Magic16 from "./pages/Magic16";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import Vibe from "./pages/Vibe";
-import VibeCreate from "./pages/VibeCreate";
-import NotFound from "./pages/NotFound";
+import { useEffect, useState } from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRouter from "./AppRouter";
+import authService from "./services/auth.service";
 
-const isLoggedIn = () => {
-  return !!localStorage.getItem("token"); // OR supabase session
-};
+function App() {
+  const [user, setUser] = useState(undefined); // IMPORTANT
 
-const PrivateRoute = ({ children }) => {
-  return isLoggedIn() ? children : <Navigate to="/" replace />;
-};
+  useEffect(() => {
+    let unsubscribe;
 
-export default function App() {
+    authService.getCurrentUser().then((u) => {
+      setUser(u);
+
+      unsubscribe = authService.onAuthChange((newUser) => {
+        setUser(newUser);
+      });
+    });
+
+    return () => unsubscribe?.();
+  }, []);
+
+  // ⛔ BLOCK RENDER UNTIL AUTH LOADS
+  if (user === undefined) {
+    return null; // or loading spinner
+  }
+
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/magic16"
-        element={
-          <PrivateRoute>
-            <Magic16 />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/settings"
-        element={
-          <PrivateRoute>
-            <Settings />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/vibe"
-        element={
-          <PrivateRoute>
-            <Vibe />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/vibe/create"
-        element={
-          <PrivateRoute>
-            <VibeCreate />
-          </PrivateRoute>
-        }
-      />
-
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <BrowserRouter>
+      <AppRouter user={user} />
+    </BrowserRouter>
   );
 }
+
+export default App;
