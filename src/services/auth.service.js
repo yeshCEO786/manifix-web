@@ -1,11 +1,11 @@
 /* ==========================================================
- * ManifiX — Auth Service (PRODUCTION FINAL)
+ * ManifiX — Auth Service (SUPABASE v2 FINAL)
  * ----------------------------------------------------------
  * ✔ Supabase v2 compatible
  * ✔ SPA-safe (refresh-proof)
  * ✔ Web + Mobile stable
  * ✔ Prevents white screen on reload
- * ✔ Cleans up auth listeners
+ * ✔ Correct auth listener cleanup
  * ========================================================== */
 
 import supabase from "./supabase.js";
@@ -48,18 +48,12 @@ class AuthService {
   }
 
   // ===============================
-  // 👤 CURRENT USER (SAFE)
+  // 👤 CURRENT USER (v2 SAFE)
   // ===============================
   async getCurrentUser() {
-    // First try fast session read
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (sessionData?.session?.user) {
-      return sessionData.session.user;
-    }
-
-    // Fallback: wait briefly for hydration
-    const { data: userData } = await supabase.auth.getUser();
-    return userData?.user || null;
+    const { data, error } = await supabase.auth.getUser();
+    if (error) return null;
+    return data?.user || null;
   }
 
   // ===============================
@@ -72,19 +66,16 @@ class AuthService {
   }
 
   // ===============================
-  // 🔁 AUTH STATE LISTENER (CLEAN)
+  // 🔁 AUTH STATE LISTENER (CORRECT v2)
   // ===============================
   onAuthChange(callback) {
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+    const { data: { subscription } } =
+      supabase.auth.onAuthStateChange((_event, session) => {
         callback(session?.user || null);
-      }
-    );
+      });
 
-    // IMPORTANT: return unsubscribe function
-    return () => {
-      subscription?.subscription?.unsubscribe();
-    };
+    // ✅ Correct unsubscribe for v2
+    return () => subscription.unsubscribe();
   }
 
   // ===============================
@@ -116,13 +107,13 @@ class AuthService {
   // ===============================
   async forceLogout() {
     try {
-      await this.signOut();
+      await supabase.auth.signOut();
     } catch {
       console.warn("ManifiX: force logout fallback executed");
     }
   }
 }
 
-// 🔒 SINGLETON
+// 🔒 SINGLETON EXPORT
 const authService = new AuthService();
 export default authService;
