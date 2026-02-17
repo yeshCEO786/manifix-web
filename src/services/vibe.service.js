@@ -3,44 +3,66 @@ import supabase from "./supabase.js";
 
 /**
  * VibeService
- * Handles all vibe-related operations: create, fetch, search, delete
- * Designed for safety, reliability, and professional production use.
+ * Professional production-ready vibe manager
+ * Handles create, fetch, search, delete
  */
 const VibeService = {
   /**
-   * Create a new vibe for the current user
-   * @param {Object} params
-   * @param {string} params.text - The content of the vibe
-   * @param {string} params.privacy - "public" or "private"
-   * @param {string} params.font - Optional font style
-   * @param {string} params.music - Optional music reference
-   * @returns {Promise<Array>} - Returns inserted vibe data or empty array on failure
+   * Create a new vibe
    */
-  async createVibe({ text, privacy = "private", font = "", music = "" }) {
+  async createVibe({
+    text,
+    privacy = "private",
+    font = "",
+    music_title = "",
+    music_artist = "",
+    music_url = "",
+  }) {
     try {
+      if (!text || text.trim().length === 0) {
+        throw new Error("Vibe text cannot be empty");
+      }
+
+      if (!["public", "private"].includes(privacy)) {
+        throw new Error("Invalid privacy value");
+      }
+
       const {
         data: { user },
         error: userError,
       } = await supabase.auth.getUser();
 
-      if (userError || !user) throw new Error("User not authenticated");
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
 
       const { data, error } = await supabase
         .from("vibes")
-        .insert([{ user_id: user.id, text, privacy, font, music }])
-        .select();
+        .insert([
+          {
+            user_id: user.id,
+            text: text.trim(),
+            privacy,
+            font,
+            music_title,
+            music_artist,
+            music_url,
+          },
+        ])
+        .select()
+        .single();
 
       if (error) throw error;
-      return data || [];
+
+      return data || null;
     } catch (err) {
-      console.error("VibeService.createVibe error:", err);
-      return [];
+      console.error("VibeService.createVibe error:", err.message);
+      return null;
     }
   },
 
   /**
-   * Get all vibes of the currently authenticated user
-   * @returns {Promise<Array>} - User vibes or empty array
+   * Get all vibes of current user
    */
   async getUserVibes() {
     try {
@@ -58,29 +80,30 @@ const VibeService = {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
+
       return data || [];
     } catch (err) {
-      console.error("VibeService.getUserVibes error:", err);
+      console.error("VibeService.getUserVibes error:", err.message);
       return [];
     }
   },
 
   /**
-   * Search public vibes by username, email, or text
-   * @param {string} searchTerm - Term to search
-   * @returns {Promise<Array>} - Filtered public vibes
+   * Search public vibes (username, email, text)
    */
   async searchPublicVibes(searchTerm = "") {
-    if (!searchTerm) return [];
-
     try {
+      if (!searchTerm.trim()) return [];
+
       const { data, error } = await supabase
         .from("vibes")
         .select(`
           id,
           text,
           font,
-          music,
+          music_title,
+          music_artist,
+          music_url,
           created_at,
           profiles:profiles (
             username,
@@ -88,42 +111,61 @@ const VibeService = {
           )
         `)
         .eq("privacy", "public")
-        .or(
-          `profiles.username.ilike.%${searchTerm}%,profiles.email.ilike.%${searchTerm}%`
-        )
+        .or(`
+          text.ilike.%${searchTerm}%,
+          profiles.username.ilike.%${searchTerm}%,
+          profiles.email.ilike.%${searchTerm}%
+        `)
         .order("created_at", { ascending: false })
         .limit(20);
 
       if (error) throw error;
 
-      return data.map((v) => ({
+      return (data || []).map((v) => ({
         id: v.id,
         text: v.text,
         font: v.font,
-        music: v.music,
-        user_name: v.profiles?.username || v.profiles?.email || "Anonymous",
+        music_title: v.music_title,
+        music_artist: v.music_artist,
+        music_url: v.music_url,
+        user_name:
+          v.profiles?.username ||
+          v.profiles?.email ||
+          "Anonymous",
       }));
     } catch (err) {
-      console.error("VibeService.searchPublicVibes error:", err);
+      console.error("VibeService.searchPublicVibes error:", err.message);
       return [];
     }
   },
 
   /**
-   * Delete a vibe by ID
-   * @param {string|number} vibeId - ID of the vibe to delete
-   * @returns {Promise<boolean>} - True if deleted successfully
+   * Delete vibe securely (only owner can delete)
    */
   async deleteVibe(vibeId) {
     try {
-      if (!vibeId) throw new Error("Vibe ID is required");
+      if (!vibeId) throw new Error("Vibe ID required");
 
-      const { error } = await supabase.from("vibes").delete().eq("id", vibeId);
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { error } = await supabase
+        .from("vibes")
+        .delete()
+        .eq("id", vibeId)
+        .eq("user_id", user.id); // 🔐 secure delete
 
       if (error) throw error;
+
       return true;
     } catch (err) {
-      console.error("VibeService.deleteVibe error:", err);
+      console.error("VibeService.deleteVibe error:", err.message);
       return false;
     }
   },

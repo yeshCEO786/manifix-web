@@ -17,15 +17,10 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const validateInputs = () => {
-    if (!email || !password) {
-      return "⚠️ Please enter both email and password";
-    }
-    if (!isValidEmail(email)) {
-      return "⚠️ Invalid email format";
-    }
-    if (!isValidPassword(password)) {
+    if (!email || !password) return "⚠️ Please enter both email and password";
+    if (!isValidEmail(email)) return "⚠️ Invalid email format";
+    if (!isValidPassword(password))
       return "⚠️ Password must be at least 6 characters";
-    }
     return null;
   };
 
@@ -42,7 +37,6 @@ const Login = () => {
 
     try {
       const trimmedEmail = email.trim();
-
       const user =
         mode === "login"
           ? await authService.login(trimmedEmail, password)
@@ -54,7 +48,7 @@ const Login = () => {
             ? "Welcome back to ManifiX"
             : "Welcome to ManifiX"
         );
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
     } catch (err) {
       console.error("Auth Error:", err);
@@ -86,8 +80,10 @@ const Login = () => {
             placeholder="Email"
             value={email}
             autoComplete="email"
+            aria-label="Email"
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
+            required
           />
 
           <input
@@ -95,11 +91,13 @@ const Login = () => {
             placeholder="Password"
             value={password}
             autoComplete="current-password"
+            aria-label="Password"
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
+            required
           />
 
-          {errorMsg && <p className="error-msg">{errorMsg}</p>}
+          {errorMsg && <p className="error-msg" role="alert">{errorMsg}</p>}
 
           <button className="btn" type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
@@ -117,7 +115,9 @@ const Login = () => {
 
         <p className="footer">
           By continuing, you agree to our{" "}
-          <a href="/privacy">Privacy Policy</a>
+          <a href="/privacy" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>
         </p>
       </div>
     </div>

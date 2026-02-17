@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import supabase from "../services/supabase.js";
 import VibeService from "../services/vibe.service.js";
+<<<<<<< HEAD
+=======
+
+>>>>>>> f461386 (Removed unused manifest service)
 
 const Profile = () => {
   const [user, setUser] = useState(null);

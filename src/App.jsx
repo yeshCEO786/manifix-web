@@ -1,29 +1,26 @@
-import { useEffect, useState } from "react";
+// src/App.jsx
+import React, { useEffect, useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRouter from "./AppRouter";
 import authService from "./services/auth.service";
 
-function App() {
-  const [user, setUser] = useState(undefined); // IMPORTANT
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe;
+    const initUser = async () => {
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      setLoading(false);
+    };
 
-    authService.getCurrentUser().then((u) => {
-      setUser(u);
-
-      unsubscribe = authService.onAuthChange((newUser) => {
-        setUser(newUser);
-      });
-    });
-
-    return () => unsubscribe?.();
+    initUser();
+    const unsubscribe = authService.onAuthChange((u) => setUser(u));
+    return unsubscribe;
   }, []);
 
-  // ⛔ BLOCK RENDER UNTIL AUTH LOADS
-  if (user === undefined) {
-    return null; // or loading spinner
-  }
+  if (loading) return <div>Loading…</div>;
 
   return (
     <BrowserRouter>
@@ -31,5 +28,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

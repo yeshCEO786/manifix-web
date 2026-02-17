@@ -12,7 +12,8 @@ export default function Gpt() {
   const chatContainer = useRef(null);
   const inputRef = useRef(null);
 
-  const API_BASE = "https://manifix.up.railway.app";
+  const API_BASE = "http://localhost:5000";
+
 
 
   // -------------------- SCROLL TO BOTTOM --------------------
