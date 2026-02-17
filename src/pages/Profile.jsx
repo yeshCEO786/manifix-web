@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import supabase from "../services/supabase.js";
 import VibeService from "../services/vibe.service.js";
-<<<<<<< HEAD
-=======
-
->>>>>>> f461386 (Removed unused manifest service)
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -50,7 +46,7 @@ const Profile = () => {
   };
 
   const updateUsername = async () => {
-    if (!username.trim()) return;
+    if (!username.trim() || !user) return;
 
     await supabase.from("profiles").upsert({
       id: user.id,
@@ -71,10 +67,10 @@ const Profile = () => {
       <section className="profile-header">
         <div className="avatar">
           {username?.charAt(0)?.toUpperCase() ||
-            user.email[0].toUpperCase()}
+            user?.email?.[0]?.toUpperCase()}
         </div>
         <h2>{username || "Your Identity"}</h2>
-        <p className="email">{user.email}</p>
+        <p className="email">{user?.email}</p>
       </section>
 
       <section className="profile-edit">
@@ -91,6 +87,7 @@ const Profile = () => {
 
       <section className="profile-section">
         <h3>Your Vibes</h3>
+
         {vibes.length === 0 && (
           <p className="empty">No vibes yet</p>
         )}
