@@ -3,14 +3,12 @@ import { useEffect, useState } from "react";
 import supabase from "./services/supabase";
 
 // Pages
-import Magic16 from "./pages/Magic16";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
 import Gpt from "./pages/Gpt";
+import Magic16 from "./pages/Magic16";
 import Vibe from "./pages/Vibe";
-import VibeCreate from "./pages/VibeCreate";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -48,37 +46,36 @@ function App() {
   return (
     <Routes>
 
-      {/* Public Routes */}
-      <Route path="/" element={<Magic16 />} />
+      {/* Public */}
+      <Route
+        path="/"
+        element={user ? <Navigate to="/dashboard" replace /> : <Landing />}
+      />
+
       <Route
         path="/login"
         element={!user ? <Login /> : <Navigate to="/dashboard" replace />}
       />
 
-      {/* Protected Routes */}
+      {/* Protected */}
       <Route
         path="/dashboard"
-        element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />}
+        element={user ? <Dashboard /> : <Navigate to="/login" replace />}
       />
-      <Route
-        path="/profile"
-        element={user ? <Profile user={user} /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/settings"
-        element={user ? <Settings /> : <Navigate to="/login" replace />}
-      />
+
       <Route
         path="/gpt"
         element={user ? <Gpt /> : <Navigate to="/login" replace />}
       />
+
+      <Route
+        path="/magic16"
+        element={user ? <Magic16 /> : <Navigate to="/login" replace />}
+      />
+
       <Route
         path="/vibe"
         element={user ? <Vibe /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/vibe-create"
-        element={user ? <VibeCreate /> : <Navigate to="/login" replace />}
       />
 
       {/* 404 */}
