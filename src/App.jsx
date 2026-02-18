@@ -12,70 +12,91 @@ import Vibe from "./pages/Vibe";
 import NotFound from "./pages/NotFound";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getSession = async () => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
       const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
-      setLoading(false);
+      if (mounted) {
+        setSession(data.session);
+        setLoading(false);
+      }
     };
 
-    getSession();
+    initializeAuth();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
 
     return () => {
-      listener.subscription.unsubscribe();
+      mounted = false;
+      subscription.unsubscribe();
     };
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        Loading ManifiX...
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
     <Routes>
 
-      {/* Public */}
+      {/* Public Routes */}
       <Route
         path="/"
-        element={user ? <Navigate to="/dashboard" replace /> : <Landing />}
+        element={
+          session ? <Navigate to="/gpt" replace /> : <Landing />
+        }
       />
 
       <Route
         path="/login"
-        element={!user ? <Login /> : <Navigate to="/dashboard" replace />}
+        element={
+          session ? <Navigate to="/gpt" replace /> : <Login />
+        }
       />
 
-      {/* Protected */}
+      {/* Protected Routes */}
       <Route
         path="/dashboard"
-        element={user ? <Dashboard /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute session={session}>
+            <Dashboard />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/gpt"
-        element={user ? <Gpt /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute session={session}>
+            <Gpt />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/magic16"
-        element={user ? <Magic16 /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute session={session}>
+            <Magic16 />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/vibe"
-        element={user ? <Vibe /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute session={session}>
+            <Vibe />
+          </ProtectedRoute>
+        }
       />
 
       {/* 404 */}
@@ -84,5 +105,52 @@ function App() {
     </Routes>
   );
 }
+
+/* ---------------- Protected Route ---------------- */
+
+function ProtectedRoute({ session, children }) {
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
+/* ---------------- Loading Screen ---------------- */
+
+function LoadingScreen() {
+  return (
+    <div style={styles.container}>
+      <div style={styles.spinner}></div>
+      <p style={styles.text}>Loading ManifiX...</p>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    height: "100vh",
+    backgroundColor: "#0e0e14",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "#ffffff",
+    fontFamily: "Inter, sans-serif",
+  },
+  spinner: {
+    width: "42px",
+    height: "42px",
+    border: "4px solid rgba(255,255,255,0.1)",
+    borderTop: "4px solid #6366f1",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
+    marginBottom: "20px",
+  },
+  text: {
+    fontSize: "0.95rem",
+    letterSpacing: "1px",
+    opacity: 0.8,
+  },
+};
 
 export default App;
