@@ -1,88 +1,74 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import supabase from "./services/supabase";
+import "..styles/Landing.css";
 
-// Pages
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Gpt from "./pages/Gpt";
-import Magic16 from "./pages/Magic16";
-import Vibe from "./pages/Vibe";
-import NotFound from "./pages/NotFound";
-
-function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+function Landing() {
+  const navigate = useNavigate();
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    };
-
-    getSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+    setLoaded(true);
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        Loading ManifiX...
-      </div>
-    );
-  }
-
   return (
-    <Routes>
+    <div className="landing-wrapper">
 
-      {/* Public */}
-      <Route
-        path="/"
-        element={user ? <Navigate to="/dashboard" replace /> : <Landing />}
-      />
+      {/* Background Glow */}
+      <div className="background-glow"></div>
 
-      <Route
-        path="/login"
-        element={!user ? <Login /> : <Navigate to="/dashboard" replace />}
-      />
+      {/* Navigation */}
+      <header className="landing-nav">
+        <div className="logo">ManifiX</div>
 
-      {/* Protected */}
-      <Route
-        path="/dashboard"
-        element={user ? <Dashboard /> : <Navigate to="/login" replace />}
-      />
+        <div className="nav-actions">
+          <button
+            className="login-link"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
 
-      <Route
-        path="/gpt"
-        element={user ? <Gpt /> : <Navigate to="/login" replace />}
-      />
+          <button
+            className="primary-btn"
+            onClick={() => navigate("/login")}
+          >
+            Get Started
+          </button>
+        </div>
+      </header>
 
-      <Route
-        path="/magic16"
-        element={user ? <Magic16 /> : <Navigate to="/login" replace />}
-      />
+      {/* Hero Section */}
+      <section className={`hero ${loaded ? "fade-in" : ""}`}>
+        <h1 className="hero-title">
+          Intelligence meets Intention
+        </h1>
 
-      <Route
-        path="/vibe"
-        element={user ? <Vibe /> : <Navigate to="/login" replace />}
-      />
+        <p className="hero-subtitle">
+          ManifiX is your AI Ritual Companion — combining focus,
+          clarity, and energy into one powerful experience.
+        </p>
 
-      {/* 404 */}
-      <Route path="*" element={<NotFound />} />
+        <div className="hero-buttons">
+          <button
+            className="primary-btn large"
+            onClick={() => navigate("/login")}
+          >
+            Enter ManifiX
+          </button>
 
-    </Routes>
+          <button className="secondary-btn">
+            Learn More
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="landing-footer">
+        © {new Date().getFullYear()} ManifiX. All rights reserved.
+      </footer>
+
+    </div>
   );
 }
 
-export default App;
+export default Landing;
