@@ -1,13 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://sxzltwqufjsjcbsihwcr.supabase.co"; // 🔥 Replace this
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4emx0d3F1ZmpzamNic2lod2NyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTE0MTkxNCwiZXhwIjoyMDc2NzE3OTE0fQ.Ctz3CvDIxzxtarUd0YwAnuUTn-WpostOgafDaQhVr0s"; // 🔒 Never expose service key
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase environment variables are missing");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default supabase;
