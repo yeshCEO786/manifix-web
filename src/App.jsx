@@ -9,7 +9,6 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Gpt from "./pages/Gpt";
-import Manifest from "./pages/Manifest";
 import Vibe from "./pages/Vibe";
 import VibeCreate from "./pages/VibeCreate";
 import NotFound from "./pages/NotFound";
@@ -72,10 +71,6 @@ function App() {
       <Route
         path="/gpt"
         element={user ? <Gpt /> : <Navigate to="/login" replace />}
-      />
-      <Route
-        path="/manifest"
-        element={user ? <Manifest /> : <Navigate to="/login" replace />}
       />
       <Route
         path="/vibe"
