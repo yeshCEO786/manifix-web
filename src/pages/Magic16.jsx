@@ -8,7 +8,6 @@ import "./magic16.css";
 
 import logo from "../assets/logo.png";
 
-// yoga + meditation images
 import yoga1 from "../assets/steps/yoga-01.png";
 import yoga2 from "../assets/steps/yoga-02.png";
 import yoga3 from "../assets/steps/yoga-03.png";
@@ -31,14 +30,23 @@ export default function Magic16() {
   const streamRef = useRef(null);
   const poseDetectorRef = useRef(null);
   const faceDetectorRef = useRef(null);
-  const intervalRef = useRef(null);
+  const timerRef = useRef(null);
+  const detectRef = useRef(null);
+
+  const postureSamples = useRef([]);
+  const faceSamples = useRef([]);
+  const lastFaceX = useRef(null);
 
   const [playing, setPlaying] = useState(false);
   const [index, setIndex] = useState(0);
   const [totalTime, setTotalTime] = useState(16 * 60);
   const [stepTime, setStepTime] = useState(60);
+  const [sessionComplete, setSessionComplete] = useState(false);
 
-  // 16-Minute Flow (960 seconds total distributed)
+  const [postureScore, setPostureScore] = useState(0);
+  const [faceScore, setFaceScore] = useState(0);
+  const [healthScore, setHealthScore] = useState(0);
+
   const steps = [
     { img: yoga1, text: "Mountain Pose. Stand tall.", duration: 60 },
     { img: yoga2, text: "Forward Fold. Relax.", duration: 60 },
@@ -57,33 +65,36 @@ export default function Magic16() {
     { img: med7, text: "Visualize success.", duration: 60 },
   ];
 
-  // ----------------------------
-  // Format Time
-  // ----------------------------
   const format = (s) =>
-    `${Math.floor(s / 60)
-      .toString()
-      .padStart(2, "0")}:${(s % 60)
+    `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60)
       .toString()
       .padStart(2, "0")}`;
 
-  // ----------------------------
-  // Timer
-  // ----------------------------
+  // ---------------- TIMER ----------------
   const startTimer = () => {
-    intervalRef.current = setInterval(() => {
-      setTotalTime((prev) => (prev > 0 ? prev - 1 : 0));
+    timerRef.current = setInterval(() => {
+      setTotalTime((prev) => {
+        if (prev <= 1) {
+          finishSession();
+          return 0;
+        }
+        return prev - 1;
+      });
+
       setStepTime((prev) => {
-        if (prev > 0) return prev - 1;
-        nextStep();
-        return steps[index + 1]?.duration || 0;
+        if (prev <= 1) {
+          setIndex((i) => {
+            const next = Math.min(i + 1, steps.length - 1);
+            return next;
+          });
+          return steps[index + 1]?.duration || 60;
+        }
+        return prev - 1;
       });
     }, 1000);
   };
 
-  const stopTimer = () => {
-    clearInterval(intervalRef.current);
-  };
+  const stopTimer = () => clearInterval(timerRef.current);
 
   const togglePlay = () => {
     if (!playing) startTimer();
@@ -91,17 +102,7 @@ export default function Magic16() {
     setPlaying(!playing);
   };
 
-  const nextStep = () => {
-    setIndex((prev) => {
-      const newIndex = Math.min(prev + 1, steps.length - 1);
-      setStepTime(steps[newIndex].duration);
-      return newIndex;
-    });
-  };
-
-  // ----------------------------
-  // Voice
-  // ----------------------------
+  // ---------------- VOICE ----------------
   useEffect(() => {
     if (!playing) return;
     const speech = new SpeechSynthesisUtterance(steps[index].text);
@@ -110,9 +111,7 @@ export default function Magic16() {
     window.speechSynthesis.speak(speech);
   }, [index, playing]);
 
-  // ----------------------------
-  // Camera + AI
-  // ----------------------------
+  // ---------------- CAMERA INIT ----------------
   useEffect(() => {
     const init = async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -133,14 +132,13 @@ export default function Magic16() {
 
     return () => {
       stopTimer();
+      clearInterval(detectRef.current);
       if (streamRef.current)
         streamRef.current.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
-  // ----------------------------
-  // Detection Loop
-  // ----------------------------
+  // ---------------- DETECTION ----------------
   const detect = useCallback(async () => {
     if (!videoRef.current) return;
 
@@ -152,46 +150,98 @@ export default function Magic16() {
 
     ctx.drawImage(videoRef.current, 0, 0, 640, 480);
 
-    ctx.strokeStyle = "#00ffcc";
+    // -------- POSTURE SCORE --------
+    if (poses && poses.length > 0) {
+      const keypoints = poses[0].keypoints;
 
-    poses?.forEach((pose) => {
-      pose.keypoints.forEach((kp) => {
-        if (kp.score > 0.5) {
-          ctx.beginPath();
-          ctx.arc(kp.x, kp.y, 5, 0, 2 * Math.PI);
-          ctx.stroke();
-        }
-      });
-    });
+      const ls = keypoints.find(k => k.name === "left_shoulder");
+      const rs = keypoints.find(k => k.name === "right_shoulder");
+      const lh = keypoints.find(k => k.name === "left_hip");
+      const rh = keypoints.find(k => k.name === "right_hip");
 
-    faces?.forEach((face) => {
-      const box = face.box;
+      if (ls && rs && lh && rh) {
+        const shoulderDiff = Math.abs(ls.y - rs.y);
+        const hipDiff = Math.abs(lh.y - rh.y);
+
+        const score = Math.max(0, 100 - (shoulderDiff + hipDiff) / 5);
+        postureSamples.current.push(score);
+      }
+    }
+
+    // -------- FACE SCORE --------
+    if (faces && faces.length > 0) {
+      const box = faces[0].box;
+
+      if (lastFaceX.current !== null) {
+        const movement = Math.abs(box.xMin - lastFaceX.current);
+        const stability = Math.max(0, 100 - movement);
+        faceSamples.current.push(stability);
+      }
+
+      lastFaceX.current = box.xMin;
+      ctx.strokeStyle = "#00f5c4";
       ctx.strokeRect(box.xMin, box.yMin, box.width, box.height);
-    });
+    }
   }, []);
 
   useEffect(() => {
     if (!playing) return;
-    const loop = setInterval(detect, 700);
-    return () => clearInterval(loop);
+    detectRef.current = setInterval(detect, 500);
+    return () => clearInterval(detectRef.current);
   }, [playing, detect]);
 
-  // ----------------------------
-  // UI
-  // ----------------------------
+  // ---------------- FINISH SESSION ----------------
+  const finishSession = () => {
+    stopTimer();
+    clearInterval(detectRef.current);
+
+    const avgPosture =
+      postureSamples.current.reduce((a, b) => a + b, 0) /
+      postureSamples.current.length || 0;
+
+    const avgFace =
+      faceSamples.current.reduce((a, b) => a + b, 0) /
+      faceSamples.current.length || 0;
+
+    const finalScore = Math.round(avgPosture * 0.6 + avgFace * 0.4);
+
+    setPostureScore(Math.round(avgPosture));
+    setFaceScore(Math.round(avgFace));
+    setHealthScore(finalScore);
+    setSessionComplete(true);
+    setPlaying(false);
+  };
+
+  // ---------------- RESULT SCREEN ----------------
+  if (sessionComplete) {
+    return (
+      <div className="result-overlay">
+        <div className="result-card">
+          <h2>✨ Ritual Complete</h2>
+          <h1>{healthScore}%</h1>
+          <p>Overall Wellness Score</p>
+          <p>🧍 Posture: {postureScore}%</p>
+          <p>😌 Calmness: {faceScore}%</p>
+          <button onClick={() => window.location.reload()}>
+            Start Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------- MAIN UI ----------------
   return (
-    <div style={{ textAlign: "center", background: "#020617", minHeight: "100vh", color: "#fff" }}>
-      <img src={logo} alt="ManifiX Logo" style={{ width: 120, marginTop: 20 }} />
+    <div className="magic16-container">
+      <img src={logo} alt="ManifiX Logo" className="magic16-logo" />
 
       <h2>Magic 16 Ritual</h2>
 
-      <div>
-        <img
-          src={steps[index].img}
-          alt="step"
-          style={{ width: 250, margin: 20 }}
-        />
-      </div>
+      <img
+        src={steps[index].img}
+        alt="step"
+        className="magic16-image"
+      />
 
       <h3>{steps[index].text}</h3>
 
@@ -202,7 +252,7 @@ export default function Magic16() {
         {playing ? "Pause" : "Start"}
       </button>
 
-      <div style={{ position: "relative", marginTop: 20 }}>
+      <div className="magic16-camera-wrapper">
         <video ref={videoRef} width="640" height="480" autoPlay muted hidden />
         <canvas ref={canvasRef} width="640" height="480" />
       </div>
