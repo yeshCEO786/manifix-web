@@ -12,7 +12,6 @@ export { useAchievements } from "./useAchievements";
 export { default as useStreak } from "./useStreak";
 
 // ==================== Magic16 Core ====================
-export { default as useMagic16 } from "./useMagic16";
 export { default as useTimer } from "./useTimer";
 export { default as useWarriorValidator } from "./useWarriorValidator";
 export { default as useDetection } from "./useDetection";
