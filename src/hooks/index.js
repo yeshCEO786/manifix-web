@@ -2,29 +2,31 @@
 // Central export for all ManifiX custom hooks
 // Professional, safe, and future-ready
 
-// Auth & AI
+// ==================== Auth & AI ====================
 export { default as useAuth } from "./useAuth";
 export { default as useAIChat } from "./useAIChat";
 
-// User programs & achievements
+// ==================== User Programs & Achievements ====================
 export { default as useGuidedPrograms } from "./useGuidedPrograms";
 export { useAchievements } from "./useAchievements";
+export { default as useStreak } from "./useStreak";
 
-
-// Magic16 features
+// ==================== Magic16 Core ====================
 export { default as useMagic16 } from "./useMagic16";
+export { default as useTimer } from "./useTimer";
+export { default as useWarriorValidator } from "./useWarriorValidator";
+export { default as useDetection } from "./useDetection";
 
-// Utility hooks
+// ==================== Voice System ====================
+export { default as useVoice } from "./useVoice";
+export { default as useVoiceCommands } from "./useVoiceCommands";
+
+// ==================== Vibe System ====================
+export { default as useVibe } from "./useVibe";
+
+// ==================== Utilities ====================
 export { default as useFeatureFlags } from "./useFeatureFlags";
 export { default as useErrorHandler } from "./useErrorHandler";
 export { default as useNotifications } from "./useNotifications";
 export { default as useOfflineCache } from "./useOfflineCache";
 export { default as useQuickReplies } from "./useQuickReplies";
-export { default as useVoice } from "./useVoice";
-export { default as useVoiceCommands } from "./useVoiceCommands";
-export { default as useVibe } from "./useVibe";
-export { default as useMagic16 } from "./useMagic16";
-export { default as useVoice } from "./useVoice";
-export { default as useStreak } from "./useStreak";
-export { default as useDetection } from "./useDetection";
-export { default as useTimer } from "./useTimer";
