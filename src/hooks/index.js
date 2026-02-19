@@ -9,7 +9,7 @@ export { default as useAIChat } from "./useAIChat";
 // User programs & achievements
 export { default as useGuidedPrograms } from "./useGuidedPrograms";
 export { useAchievements } from "./useAchievements";
-export { default as useHealthTips } from "./useHealthTips";
+
 
 // Magic16 features
 export { default as useMagic16 } from "./useMagic16";
@@ -25,6 +25,6 @@ export { default as useVoiceCommands } from "./useVoiceCommands";
 export { default as useVibe } from "./useVibe";
 export { default as useMagic16 } from "./useMagic16";
 export { default as useVoice } from "./useVoice";
-
-
-
+export { default as useStreak } from "./useStreak";
+export { default as useDetection } from "./useDetection";
+export { default as useTimer } from "./useTimer";
