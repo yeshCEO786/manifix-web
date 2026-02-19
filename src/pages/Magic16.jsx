@@ -1,7 +1,8 @@
 // src/pages/Magic16.jsx
 
-import { useRef, useEffect } from "react";
-import { useTimer, useDetection, useStreak } from "../hooks";
+import { useRef, useEffect, useState, useCallback } from "react";
+import * as posedetection from "@tensorflow-models/pose-detection";
+import "@tensorflow/tfjs-backend-webgl";
 import "./magic16.css";
 
 import logo from "../assets/logo.png";
@@ -25,9 +26,17 @@ import med7 from "../assets/steps/med-07.png";
 
 export default function Magic16() {
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const detectorRef = useRef(null);
+  const timerRef = useRef(null);
+  const detectRef = useRef(null);
 
-  // 16-minute flow
+  const [stepIndex, setStepIndex] = useState(0);
+  const [stepTime, setStepTime] = useState(60);
+  const [totalTime, setTotalTime] = useState(16 * 60);
+  const [playing, setPlaying] = useState(false);
+  const [score, setScore] = useState(0);
+  const [completed, setCompleted] = useState(false);
+
   const steps = [
     { img: yoga1, text: "Mountain Pose. Stand tall.", duration: 60 },
     { img: yoga2, text: "Forward Fold. Relax.", duration: 60 },
@@ -46,49 +55,105 @@ export default function Magic16() {
     { img: med7, text: "Visualize success.", duration: 60 },
   ];
 
-  // ---------------- TIMER ----------------
-  const {
-    totalTime,
-    stepTime,
-    stepIndex,
-    playing,
-    completed,
-    start,
-    stop,
-    reset,
-  } = useTimer(steps, 16 * 60);
+  // ---------------- VOICE ----------------
+  const speak = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    if (playing) speak(steps[stepIndex].text);
+  }, [stepIndex, playing]);
+
+  // ---------------- CAMERA INIT ----------------
+  useEffect(() => {
+    const init = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      videoRef.current.srcObject = stream;
+
+      detectorRef.current = await posedetection.createDetector(
+        posedetection.SupportedModels.MoveNet,
+        {
+          modelType:
+            posedetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+        }
+      );
+    };
+
+    init();
+
+    return () => {
+      clearInterval(timerRef.current);
+      clearInterval(detectRef.current);
+    };
+  }, []);
 
   // ---------------- DETECTION ----------------
-  const {
-    postureScore,
-    faceScore,
-    healthScore,
-    start: startDetection,
-    stop: stopDetection,
-    calculateFinalScore,
-  } = useDetection(videoRef, canvasRef);
+  const detect = useCallback(async () => {
+    if (!detectorRef.current || !videoRef.current) return;
 
-  // ---------------- STREAK ----------------
-  const {
-    currentStreak,
-    longestStreak,
-    completeToday,
-  } = useStreak();
+    const poses = await detectorRef.current.estimatePoses(videoRef.current);
 
-  // Start / Stop detection with timer
-  useEffect(() => {
-    if (playing) startDetection();
-    else stopDetection();
-  }, [playing]);
+    if (poses.length > 0) {
+      const keypoints = poses[0].keypoints;
 
-  // When session completes
-  useEffect(() => {
-    if (completed) {
-      stopDetection();
-      calculateFinalScore();
-      completeToday();
+      const ls = keypoints.find(k => k.name === "left_shoulder");
+      const rs = keypoints.find(k => k.name === "right_shoulder");
+
+      if (ls && rs) {
+        const diff = Math.abs(ls.y - rs.y);
+        const postureScore = Math.max(0, 100 - diff * 2);
+
+        setScore(prev => Math.round(prev * 0.8 + postureScore * 0.2));
+      }
     }
-  }, [completed]);
+  }, []);
+
+  // ---------------- START SESSION ----------------
+  const startSession = () => {
+    if (playing) return;
+
+    setPlaying(true);
+    setStepTime(steps[stepIndex].duration);
+
+    timerRef.current = setInterval(() => {
+      setTotalTime(t => (t > 0 ? t - 1 : 0));
+
+      setStepTime(prev => {
+        if (prev <= 1) {
+          setStepIndex(prevIndex => {
+            const next = prevIndex + 1;
+
+            if (next >= steps.length) {
+              finishSession();
+              return prevIndex;
+            }
+
+            setStepTime(steps[next].duration);
+            return next;
+          });
+
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    detectRef.current = setInterval(detect, 400);
+  };
+
+  const stopSession = () => {
+    clearInterval(timerRef.current);
+    clearInterval(detectRef.current);
+    setPlaying(false);
+  };
+
+  const finishSession = () => {
+    stopSession();
+    setCompleted(true);
+  };
 
   const format = (s) =>
     `${Math.floor(s / 60)
@@ -97,33 +162,24 @@ export default function Magic16() {
       .toString()
       .padStart(2, "0")}`;
 
-  // ---------------- RESULT SCREEN ----------------
+  // ---------------- RESULT ----------------
   if (completed) {
     return (
       <div className="result-overlay">
         <div className="result-card">
           <h2>✨ Ritual Complete</h2>
-          <h1>{healthScore}%</h1>
-          <p>Overall Wellness Score</p>
-
-          <p>🧍 Posture: {postureScore}%</p>
-          <p>😌 Calmness: {faceScore}%</p>
-
-          <div style={{ marginTop: 20 }}>
-            <p>🔥 Current Streak: {currentStreak} days</p>
-            <p>🏆 Longest Streak: {longestStreak} days</p>
-          </div>
-
-          <button onClick={reset}>Start Again</button>
+          <h1>{score}%</h1>
+          <button onClick={() => window.location.reload()}>
+            Start Again
+          </button>
         </div>
       </div>
     );
   }
 
-  // ---------------- MAIN UI ----------------
   return (
     <div className="magic16-container">
-      <img src={logo} alt="ManifiX Logo" className="magic16-logo" />
+      <img src={logo} alt="Logo" className="magic16-logo" />
 
       <h2>Magic 16 Ritual</h2>
 
@@ -140,23 +196,13 @@ export default function Magic16() {
         <p>Step Time: {format(stepTime)}</p>
       </div>
 
-      {/* Live AI Score Panel */}
-      {playing && (
-        <div className="live-score-panel">
-          <p>Health: {healthScore}%</p>
-          <p>Posture: {postureScore}%</p>
-          <p>Calm: {faceScore}%</p>
-        </div>
-      )}
+      <p>Live Score: {score}%</p>
 
-      <button onClick={playing ? stop : start}>
+      <button onClick={playing ? stopSession : startSession}>
         {playing ? "Pause" : "Start"}
       </button>
 
-      <div className="camera-wrapper">
-        <video ref={videoRef} width="640" height="480" autoPlay muted hidden />
-        <canvas ref={canvasRef} width="640" height="480" />
-      </div>
+      <video ref={videoRef} autoPlay muted hidden />
     </div>
   );
 }
