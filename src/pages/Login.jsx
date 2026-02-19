@@ -1,4 +1,4 @@
-// src/js/pages/Login.jsx
+// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import voiceService from "../services/voice.service";
 import { isValidEmail, isValidPassword } from "../utils/validators";
 
 import Logo from "../assets/logo.svg";
+import "../styles/Login.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,10 +18,10 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const validateInputs = () => {
-    if (!email || !password) return "⚠️ Please enter both email and password";
-    if (!isValidEmail(email)) return "⚠️ Invalid email format";
+    if (!email || !password) return "Please enter both email and password";
+    if (!isValidEmail(email)) return "Invalid email format";
     if (!isValidPassword(password))
-      return "⚠️ Password must be at least 6 characters";
+      return "Password must be at least 6 characters";
     return null;
   };
 
@@ -51,74 +52,71 @@ const Login = () => {
         navigate("/dashboard", { replace: true });
       }
     } catch (err) {
-      console.error("Auth Error:", err);
-      setErrorMsg(err?.message || "❌ Authentication failed");
+      setErrorMsg(err?.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <img src={Logo} alt="ManifiX Logo" className="logo" />
+    <div className="auth-wrapper">
+      {/* Left Brand Panel */}
+      <div className="auth-brand">
+        <img src={Logo} alt="ManifiX Logo" className="brand-logo" />
+        <h1>ManifiX</h1>
+        <p>Intelligence meets Intention</p>
+      </div>
 
-        <h1>Welcome to ManifiX</h1>
-        <p className="subtitle">
-          Your AI manifestation & Magic16 companion
-        </p>
+      {/* Right Form Panel */}
+      <div className="auth-form-container">
+        <div className="auth-card">
+          <h2>Welcome Back</h2>
+          <p className="subtitle">
+            Access your AI Ritual Companion
+          </p>
 
-        <form
-          className="auth-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAuth("login");
-          }}
-        >
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            autoComplete="email"
-            aria-label="Email"
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            autoComplete="current-password"
-            aria-label="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            required
-          />
-
-          {errorMsg && <p className="error-msg" role="alert">{errorMsg}</p>}
-
-          <button className="btn" type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-secondary"
-            disabled={loading}
-            onClick={() => handleAuth("signup")}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAuth("login");
+            }}
           >
-            {loading ? "Signing up..." : "Sign Up"}
-          </button>
-        </form>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              autoComplete="email"
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+            />
 
-        <p className="footer">
-          By continuing, you agree to our{" "}
-          <a href="/privacy" target="_blank" rel="noopener noreferrer">
-            Privacy Policy
-          </a>
-        </p>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              autoComplete="current-password"
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+
+            {errorMsg && (
+              <p className="error-msg">{errorMsg}</p>
+            )}
+
+            <button type="submit" disabled={loading}>
+              {loading ? "Processing..." : "Login"}
+            </button>
+
+            <button
+              type="button"
+              className="secondary-btn"
+              disabled={loading}
+              onClick={() => handleAuth("signup")}
+            >
+              Create Account
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
