@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as posedetection from "@tensorflow-models/pose-detection";
 import * as facedetection from "@tensorflow-models/face-detection";
 import "@tensorflow/tfjs-backend-webgl";
+import "./magic16.css";
 
 import logo from "../assets/logo.png";
 
