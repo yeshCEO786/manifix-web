@@ -22,6 +22,7 @@ export { default as useVoiceCommands } from "./useVoiceCommands";
 export { default as useTimer } from "./useTimer";
 // ==================== Vibe System ====================
 export { default as useVibe } from "./useVibe";
+export { default as useMagic16 } from "./useMagic16";
 
 // ==================== Utilities ====================
 export { default as useFeatureFlags } from "./useFeatureFlags";
