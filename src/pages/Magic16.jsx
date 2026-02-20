@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import * as posedetection from "@tensorflow-models/pose-detection";
 import "@tensorflow/tfjs-backend-webgl";
-import "./magic16.css";
+import "../styles/magic16.css";
 
 import logo from "../assets/logo.png";
 
