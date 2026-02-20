@@ -1,49 +1,94 @@
 // src/pages/Dashboard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
+import PngIcons from "../assets/icons/png-icons";
+import "../styles/Dashboard.css";
+import Logo from "../assets/logo.png";
 
+// Dashboard Component
 const Dashboard = () => {
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Welcome to ManifiX Dashboard</h1>
-      <p style={styles.subtitle}>
-        This is your main page where you can access all features.
-      </p>
+    <div
+      className="dashboard-container"
+      style={{
+        backgroundImage: `url(/manifix/backgrounds/purple-vibe.jpg)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+        fontFamily: "'Inter', sans-serif",
+        color: "#fff",
+      }}
+    >
+      {/* HEADER */}
+      <header className="dashboard-header">
+        <img src={Logo} alt="ManifiX Logo" className="dashboard-logo" />
+        <h1 className="dashboard-title">Welcome to ManifiX</h1>
+        <p className="dashboard-subtitle">
+          Your central hub for Chat, Magic16, Yoga, and Meditation
+        </p>
+      </header>
 
-      <div style={styles.links}>
-        <Link style={styles.link} to="/login">Login Page</Link>
-        <Link style={styles.link} to="/magic16">Magic16</Link>
-        <Link style={styles.link} to="/gpt">GPT Chat</Link>
-      </div>
+      {/* MAIN CARDS */}
+      <main className="dashboard-main">
+        <div className="dashboard-cards">
+
+          {/* Login Card */}
+          <Link to="/login" className="dashboard-card">
+            <img src={PngIcons.home} alt="Login Icon" className="card-icon" />
+            <h2>Login</h2>
+            <p>Access your account and settings</p>
+          </Link>
+
+          {/* Magic16 Card */}
+          <Link to="/magic16" className="dashboard-card">
+            <img src={PngIcons.magic16} alt="Magic16 Icon" className="card-icon" />
+            <h2>Magic16</h2>
+            <p>Perform guided routines for energy and focus</p>
+          </Link>
+
+          {/* GPT Chat Card */}
+          <Link to="/gpt" className="dashboard-card">
+            <img src={PngIcons.chat} alt="GPT Chat Icon" className="card-icon" />
+            <h2>Chat GPT</h2>
+            <p>Talk to your AI assistant with STT & TTS support</p>
+          </Link>
+
+          {/* Vibe Card */}
+          <Link to="/vibe" className="dashboard-card">
+            <img src={PngIcons.starFilled} alt="Vibe Icon" className="card-icon" />
+            <h2>Vibe</h2>
+            <p>Share your energy and moods with friends</p>
+          </Link>
+
+          {/* Meditation Card */}
+          <Link to="/meditation" className="dashboard-card">
+            <img src={PngIcons.target} alt="Meditation Icon" className="card-icon" />
+            <h2>Meditation</h2>
+            <p>Listen to guided meditation & breathing exercises</p>
+          </Link>
+
+          {/* Profile Card */}
+          <Link to="/profile" className="dashboard-card">
+            <img src={PngIcons.profile} alt="Profile Icon" className="card-icon" />
+            <h2>Profile</h2>
+            <p>Update your identity, avatar, and settings</p>
+          </Link>
+        </div>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="dashboard-footer">
+        <div className="footer-links">
+          <a href="https://manifix.app" target="_blank" rel="noopener noreferrer">
+            Official Website
+          </a>
+          <a href="/settings">Settings</a>
+          <a href="/contact">Contact Us</a>
+        </div>
+        <p>© 2026 ManifiX — All rights reserved</p>
+      </footer>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: "2rem",
-    textAlign: "center",
-  },
-  title: {
-    fontSize: "2.5rem",
-    marginBottom: "1rem",
-  },
-  subtitle: {
-    fontSize: "1.2rem",
-    marginBottom: "2rem",
-  },
-  links: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "1rem",
-  },
-  link: {
-    padding: "0.5rem 1rem",
-    background: "#4f46e5",
-    color: "#fff",
-    borderRadius: "0.5rem",
-    textDecoration: "none",
-  },
 };
 
 export default Dashboard;
