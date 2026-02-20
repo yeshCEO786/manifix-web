@@ -1,7 +1,5 @@
 // src/pages/Vibe.jsx
 import React, { useEffect, useState } from "react";
-import { SvgIcons } from "../assets/icons/svg-icons"; // SVG icons
-import PngIcons from "../assets/icons/png-icons";     // PNG icons
 import VibeService from "../services/vibe.service.js";
 import AuthService from "../services/auth.service.js";
 import Logo from "../assets/logo.png";                // Import logo from assets
