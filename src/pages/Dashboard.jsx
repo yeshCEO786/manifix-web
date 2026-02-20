@@ -1,20 +1,22 @@
 // src/pages/Dashboard.jsx
+
 import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/dashboard.css";
 import Logo from "../assets/logo.png";
+import PngIcons from "../assets/icons";
 
 const Dashboard = () => {
   return (
     <div
       className="dashboard-container"
       style={{
-        backgroundImage: `url(/assets/images/backgrounds/purple-vibe.jpg)`// must be inside /public/backgrounds
+        backgroundImage: "url(/assets/images/backgrounds/purple-vibe.jpg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "100vh",
-        fontFamily: "'Inter', sans-serif",
-        color: "#fff",
+        fontFamily: "Inter, sans-serif",
+        color: "#ffffff",
       }}
     >
       {/* HEADER */}
@@ -22,48 +24,48 @@ const Dashboard = () => {
         <img src={Logo} alt="ManifiX Logo" className="dashboard-logo" />
         <h1 className="dashboard-title">Welcome to ManifiX</h1>
         <p className="dashboard-subtitle">
-          Your central hub for Chat, Magic16, Yoga, and Meditation
+          Your central hub for Chat, Magic16, Yoga & Meditation
         </p>
       </header>
 
-      {/* MAIN CARDS */}
+      {/* MAIN */}
       <main className="dashboard-main">
         <div className="dashboard-cards">
 
-          <Link to="/login" className="dashboard-card">
-            <img src={PngIcons?.home} alt="Login Icon" className="card-icon" />
-            <h2>Login</h2>
-            <p>Access your account and settings</p>
-          </Link>
-
-          <Link to="/magic16" className="dashboard-card">
-            <img src={PngIcons?.magic16} alt="Magic16 Icon" className="card-icon" />
-            <h2>Magic16</h2>
-            <p>Guided energy & focus routine</p>
+          <Link to="/dashboard" className="dashboard-card">
+            <img src={PngIcons.home} alt="Home" className="card-icon" />
+            <h2>Dashboard</h2>
+            <p>Return to your main hub</p>
           </Link>
 
           <Link to="/gpt" className="dashboard-card">
-            <img src={PngIcons?.chat} alt="GPT Chat Icon" className="card-icon" />
+            <img src={PngIcons.chat} alt="Chat GPT" className="card-icon" />
             <h2>Chat GPT</h2>
-            <p>AI assistant with STT & TTS</p>
+            <p>AI assistant with voice support</p>
+          </Link>
+
+          <Link to="/magic16" className="dashboard-card">
+            <img src={PngIcons.magic16} alt="Magic16" className="card-icon" />
+            <h2>Magic16</h2>
+            <p>16-minute energy ritual</p>
           </Link>
 
           <Link to="/vibe" className="dashboard-card">
-            <img src={PngIcons?.starFilled} alt="Vibe Icon" className="card-icon" />
+            <img src={PngIcons.starFilled} alt="Vibe" className="card-icon" />
             <h2>Vibe</h2>
-            <p>Share your mood & energy</p>
-          </Link>
-
-          <Link to="/meditation" className="dashboard-card">
-            <img src={PngIcons?.target} alt="Meditation Icon" className="card-icon" />
-            <h2>Meditation</h2>
-            <p>Guided breathing & relaxation</p>
+            <p>Track & share your energy</p>
           </Link>
 
           <Link to="/profile" className="dashboard-card">
-            <img src={PngIcons?.profile} alt="Profile Icon" className="card-icon" />
+            <img src={PngIcons.profile} alt="Profile" className="card-icon" />
             <h2>Profile</h2>
-            <p>Edit your identity & settings</p>
+            <p>Manage your account</p>
+          </Link>
+
+          <Link to="/settings" className="dashboard-card">
+            <img src={PngIcons.settings} alt="Settings" className="card-icon" />
+            <h2>Settings</h2>
+            <p>Customize your experience</p>
           </Link>
 
         </div>
@@ -79,10 +81,9 @@ const Dashboard = () => {
           >
             Official Website
           </a>
-          <Link to="/settings">Settings</Link>
-          <Link to="/contact">Contact Us</Link>
+          <Link to="/contact">Contact</Link>
         </div>
-        <p>© 2026 ManifiX — All rights reserved</p>
+        <p>© 2026 ManifiX. All rights reserved.</p>
       </footer>
     </div>
   );
