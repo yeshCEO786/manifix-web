@@ -19,7 +19,7 @@ export { default as useDetection } from "./useDetection";
 // ==================== Voice System ====================
 export { default as useVoice } from "./useVoice";
 export { default as useVoiceCommands } from "./useVoiceCommands";
-
+export { default as useTimer } from "./useTimer";
 // ==================== Vibe System ====================
 export { default as useVibe } from "./useVibe";
 
