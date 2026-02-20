@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PngIcons from "../assets/icons/png-icons";
-import "../styles/Dashboard.css";
+import "../styles/dashboard.css";
 import Logo from "../assets/logo.png";
 
 // Dashboard Component
