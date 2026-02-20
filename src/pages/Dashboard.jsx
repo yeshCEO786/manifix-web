@@ -4,13 +4,15 @@ import { Link } from "react-router-dom";
 import "../styles/dashboard.css";
 import Logo from "../assets/logo.png";
 
-// Dashboard Component
+// ✅ Import icons correctly (adjust path if needed)
+import { PngIcons } from "../assets/icons";
+
 const Dashboard = () => {
   return (
     <div
       className="dashboard-container"
       style={{
-        backgroundImage: `url(/manifix/backgrounds/purple-vibe.jpg)`,
+        backgroundImage: `url(/backgrounds/purple-vibe.jpg)`, // must be inside /public/backgrounds
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "100vh",
@@ -31,58 +33,57 @@ const Dashboard = () => {
       <main className="dashboard-main">
         <div className="dashboard-cards">
 
-          {/* Login Card */}
           <Link to="/login" className="dashboard-card">
-            <img src={PngIcons.home} alt="Login Icon" className="card-icon" />
+            <img src={PngIcons?.home} alt="Login Icon" className="card-icon" />
             <h2>Login</h2>
             <p>Access your account and settings</p>
           </Link>
 
-          {/* Magic16 Card */}
           <Link to="/magic16" className="dashboard-card">
-            <img src={PngIcons.magic16} alt="Magic16 Icon" className="card-icon" />
+            <img src={PngIcons?.magic16} alt="Magic16 Icon" className="card-icon" />
             <h2>Magic16</h2>
-            <p>Perform guided routines for energy and focus</p>
+            <p>Guided energy & focus routine</p>
           </Link>
 
-          {/* GPT Chat Card */}
           <Link to="/gpt" className="dashboard-card">
-            <img src={PngIcons.chat} alt="GPT Chat Icon" className="card-icon" />
+            <img src={PngIcons?.chat} alt="GPT Chat Icon" className="card-icon" />
             <h2>Chat GPT</h2>
-            <p>Talk to your AI assistant with STT & TTS support</p>
+            <p>AI assistant with STT & TTS</p>
           </Link>
 
-          {/* Vibe Card */}
           <Link to="/vibe" className="dashboard-card">
-            <img src={PngIcons.starFilled} alt="Vibe Icon" className="card-icon" />
+            <img src={PngIcons?.starFilled} alt="Vibe Icon" className="card-icon" />
             <h2>Vibe</h2>
-            <p>Share your energy and moods with friends</p>
+            <p>Share your mood & energy</p>
           </Link>
 
-          {/* Meditation Card */}
           <Link to="/meditation" className="dashboard-card">
-            <img src={PngIcons.target} alt="Meditation Icon" className="card-icon" />
+            <img src={PngIcons?.target} alt="Meditation Icon" className="card-icon" />
             <h2>Meditation</h2>
-            <p>Listen to guided meditation & breathing exercises</p>
+            <p>Guided breathing & relaxation</p>
           </Link>
 
-          {/* Profile Card */}
           <Link to="/profile" className="dashboard-card">
-            <img src={PngIcons.profile} alt="Profile Icon" className="card-icon" />
+            <img src={PngIcons?.profile} alt="Profile Icon" className="card-icon" />
             <h2>Profile</h2>
-            <p>Update your identity, avatar, and settings</p>
+            <p>Edit your identity & settings</p>
           </Link>
+
         </div>
       </main>
 
       {/* FOOTER */}
       <footer className="dashboard-footer">
         <div className="footer-links">
-          <a href="https://manifix.app" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://manifix.app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Official Website
           </a>
-          <a href="/settings">Settings</a>
-          <a href="/contact">Contact Us</a>
+          <Link to="/settings">Settings</Link>
+          <Link to="/contact">Contact Us</Link>
         </div>
         <p>© 2026 ManifiX — All rights reserved</p>
       </footer>
