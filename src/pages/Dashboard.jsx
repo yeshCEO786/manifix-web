@@ -4,9 +4,6 @@ import { Link } from "react-router-dom";
 import "../styles/dashboard.css";
 import Logo from "../assets/logo.png";
 
-// ✅ Import icons correctly (adjust path if needed)
-import { PngIcons } from "../assets/icons";
-
 const Dashboard = () => {
   return (
     <div
