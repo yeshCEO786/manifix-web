@@ -4,7 +4,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/dashboard.css";
 import Logo from "../assets/logo.png";
-import PngIcons from "../assets/icons";
+
+// ✅ Direct icon imports (adjust filenames if needed)
+import homeIcon from "../assets/icons/home_icon.png";
+import chatIcon from "../assets/icons/chat_icon.png";
+import magic16Icon from "../assets/icons/magic16.png";
+import starFilledIcon from "../assets/icons/star-filled-666.png";
+import profileIcon from "../assets/icons/profile_icon.png";
+import settingsIcon from "../assets/icons/setting_icon.png";
 
 const Dashboard = () => {
   return (
@@ -33,37 +40,37 @@ const Dashboard = () => {
         <div className="dashboard-cards">
 
           <Link to="/dashboard" className="dashboard-card">
-            <img src={PngIcons.home} alt="Home" className="card-icon" />
+            <img src={homeIcon} alt="Home" className="card-icon" />
             <h2>Dashboard</h2>
             <p>Return to your main hub</p>
           </Link>
 
           <Link to="/gpt" className="dashboard-card">
-            <img src={PngIcons.chat} alt="Chat GPT" className="card-icon" />
+            <img src={chatIcon} alt="Chat GPT" className="card-icon" />
             <h2>Chat GPT</h2>
             <p>AI assistant with voice support</p>
           </Link>
 
           <Link to="/magic16" className="dashboard-card">
-            <img src={PngIcons.magic16} alt="Magic16" className="card-icon" />
+            <img src={magic16Icon} alt="Magic16" className="card-icon" />
             <h2>Magic16</h2>
             <p>16-minute energy ritual</p>
           </Link>
 
           <Link to="/vibe" className="dashboard-card">
-            <img src={PngIcons.starFilled} alt="Vibe" className="card-icon" />
+            <img src={starFilledIcon} alt="Vibe" className="card-icon" />
             <h2>Vibe</h2>
             <p>Track & share your energy</p>
           </Link>
 
           <Link to="/profile" className="dashboard-card">
-            <img src={PngIcons.profile} alt="Profile" className="card-icon" />
+            <img src={profileIcon} alt="Profile" className="card-icon" />
             <h2>Profile</h2>
             <p>Manage your account</p>
           </Link>
 
           <Link to="/settings" className="dashboard-card">
-            <img src={PngIcons.settings} alt="Settings" className="card-icon" />
+            <img src={settingsIcon} alt="Settings" className="card-icon" />
             <h2>Settings</h2>
             <p>Customize your experience</p>
           </Link>
