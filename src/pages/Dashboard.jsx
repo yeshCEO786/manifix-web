@@ -12,7 +12,7 @@ const Dashboard = () => {
     <div
       className="dashboard-container"
       style={{
-        backgroundImage: `url(/backgrounds/purple-vibe.jpg)`, // must be inside /public/backgrounds
+        backgroundImage: `url(/assets/images/backgrounds/purple-vibe.jpg)`// must be inside /public/backgrounds
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "100vh",
