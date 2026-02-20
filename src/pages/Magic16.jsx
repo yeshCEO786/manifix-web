@@ -8,10 +8,9 @@ import "../styles/magic16.css";
 import logo from "../assets/logo.png";
 
 // Audio
-import guidedYogaAudio from "../assets/audio/meditation/guided-yoga.mp3";
+
 import meditationAudio from "../assets/audio/meditation/meditation.mp3";
-import breathingAudio from "../assets/audio/meditation/breathing.mp3";
-import relaxationAudio from "../assets/audio/meditation/relaxation.mp3";
+
 
 // Yoga
 import yoga1 from "../assets/steps/yoga-01.png";
