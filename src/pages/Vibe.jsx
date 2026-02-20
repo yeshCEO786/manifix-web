@@ -2,35 +2,28 @@
 import React, { useEffect, useState } from "react";
 import VibeService from "../services/vibe.service.js";
 import AuthService from "../services/auth.service.js";
-import "./vibe.css"; // make sure you have proper styling
+import Logo from "../assets/logo.png";    
+import "../styles/vibe.css";
 
 // Available fonts
-const fonts = [
-  "Inter",
-  "Playfair Display",
-  "Poppins",
-  "Montserrat",
-  "Cursive",
-  "Serif",
-];
+const fonts = ["Inter","Playfair Display","Poppins","Montserrat","Cursive","Serif"];
 
 const Vibe = () => {
   const [user, setUser] = useState(null);
   const [vibeText, setVibeText] = useState("");
   const [privacy, setPrivacy] = useState("private");
   const [font, setFont] = useState("Inter");
-  const [music, setMusic] = useState(""); // Can be Spotify/URL
+  const [music, setMusic] = useState("");
   const [myVibes, setMyVibes] = useState([]);
   const [search, setSearch] = useState("");
   const [publicVibes, setPublicVibes] = useState([]);
 
-  // Load user and vibes
+  // Load user & vibes
   useEffect(() => {
-    AuthService.getCurrentUser().then((u) => setUser(u));
+    AuthService.getCurrentUser().then(setUser);
     loadMyVibes();
   }, []);
 
-  // Load my vibes
   const loadMyVibes = async () => {
     try {
       const data = await VibeService.getUserVibes();
@@ -40,7 +33,6 @@ const Vibe = () => {
     }
   };
 
-  // Search public vibes
   const searchPublicVibes = async () => {
     if (!search.trim()) return;
     try {
@@ -51,17 +43,10 @@ const Vibe = () => {
     }
   };
 
-  // Create a vibe
   const createVibe = async () => {
     if (!vibeText.trim()) return;
-
     try {
-      await VibeService.createVibe({
-        text: vibeText,
-        privacy,
-        font,
-        music, // Optional, URL or Spotify track
-      });
+      await VibeService.createVibe({ text: vibeText, privacy, font, music });
       setVibeText("");
       setMusic("");
       loadMyVibes();
@@ -71,13 +56,22 @@ const Vibe = () => {
   };
 
   return (
-    <div className="vibe-page">
-      <h1>✨ Your Vibe</h1>
-      <p className="subtitle">
-        Express your energy, thoughts, or manifestation 🌙
-      </p>
+    <div
+      className="vibe-page"
+      style={{
+        backgroundImage: `url(/manifix/backgrounds/purple-vibe.jpg)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Header */}
+      <header className="vibe-header">
+        <img src="/manifix/src/assets/logo.png" alt="ManifiX Logo" className="vibe-logo" />
+        <h1>✨ Your Vibe</h1>
+        <p className="subtitle">Today Vibe</p>
+      </header>
 
-      {/* Create Vibe */}
+      {/* CREATE VIBE */}
       <div className="vibe-create">
         <textarea
           placeholder="Write your vibe..."
@@ -89,16 +83,11 @@ const Vibe = () => {
         <div className="vibe-controls">
           <select value={font} onChange={(e) => setFont(e.target.value)}>
             {fonts.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
+              <option key={f} value={f}>{f}</option>
             ))}
           </select>
 
-          <select
-            value={privacy}
-            onChange={(e) => setPrivacy(e.target.value)}
-          >
+          <select value={privacy} onChange={(e) => setPrivacy(e.target.value)}>
             <option value="private">🔒 Private</option>
             <option value="public">🌍 Public</option>
           </select>
@@ -116,24 +105,30 @@ const Vibe = () => {
         </button>
       </div>
 
-      {/* My Vibes */}
+      {/* MY VIBES */}
       <section className="vibe-section">
         <h2>My Vibes</h2>
         {myVibes.length === 0 && <p>No vibes yet.</p>}
-        {myVibes.map((v) => (
-          <div key={v.id} className="vibe-card" style={{ fontFamily: v.font }}>
-            <p>{v.text}</p>
-            {v.music && (
-              <audio controls src={v.music}>
-                Your browser does not support audio
-              </audio>
-            )}
-            <span className="privacy">{v.privacy}</span>
-          </div>
-        ))}
+        <div className="vibe-list">
+          {myVibes.map((v) => (
+            <div key={v.id} className="vibe-card" style={{ fontFamily: v.font }}>
+              <p>{v.text}</p>
+              {v.music && (
+                <audio controls src={v.music}>
+                  Your browser does not support audio
+                </audio>
+              )}
+              <span className="privacy">{v.privacy}</span>
+              <div className="vibe-icons">
+                <img src={SvgIcons.like} alt="Like" />
+                <img src={SvgIcons.share} alt="Share" />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* Public Vibes */}
+      {/* PUBLIC VIBES */}
       <section className="vibe-section">
         <h2>Public Vibes</h2>
         <input
@@ -143,23 +138,24 @@ const Vibe = () => {
           onChange={(e) => setSearch(e.target.value)}
           onKeyUp={searchPublicVibes}
         />
-
         {publicVibes.length === 0 && <p>No public vibes found.</p>}
-        {publicVibes.map((v) => (
-          <div
-            key={v.id}
-            className="vibe-card public"
-            style={{ fontFamily: v.font }}
-          >
-            <p>{v.text}</p>
-            {v.music && (
-              <audio controls src={v.music}>
-                Your browser does not support audio
-              </audio>
-            )}
-            <span className="author">{v.user_name}</span>
-          </div>
-        ))}
+        <div className="vibe-list">
+          {publicVibes.map((v) => (
+            <div key={v.id} className="vibe-card public" style={{ fontFamily: v.font }}>
+              <p>{v.text}</p>
+              {v.music && (
+                <audio controls src={v.music}>
+                  Your browser does not support audio
+                </audio>
+              )}
+              <span className="author">{v.user_name}</span>
+              <div className="vibe-icons">
+                <img src={SvgIcons.like} alt="Like" />
+                <img src={SvgIcons.share} alt="Share" />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
