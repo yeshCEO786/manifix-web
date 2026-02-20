@@ -1,4 +1,4 @@
-import Camera from "./camera.svg";
+import Camera from "./camera";
 import Check from "./check.svg";
 import Comment from "./comment.svg";
 import Energy from "./energy.svg";
