@@ -8,7 +8,7 @@ export { default as useAIChat } from "./useAIChat";
 
 // ==================== User Programs & Achievements ====================
 export { default as useGuidedPrograms } from "./useGuidedPrograms";
-export { useAchievements } from "./useAchievements";
+export {  default as useAchievements } from "./useAchievements";
 export { default as useStreak } from "./useStreak";
 
 // ==================== Magic16 Core ====================
