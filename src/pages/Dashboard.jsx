@@ -1,7 +1,6 @@
 // src/pages/Dashboard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import PngIcons from "../assets/icons/png-icons";
 import "../styles/dashboard.css";
 import Logo from "../assets/logo.png";
 
