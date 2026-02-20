@@ -1,63 +1,75 @@
 // src/pages/BillingPage.jsx
 import React, { useState } from "react";
-import PngIcons from "../assets/icons/png-icons"; // Your PNG icons
-import "../styles/Billing666.css";
+import PngIcons from "../assets/icons/png-icons"; // Core icons including logo
+import "../styles/BillingPage.css"; // create this file for styling
 
-export default function BillingPage() {
+const BillingPage = () => {
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const handlePayment = async () => {
+  const priceId = "price_1999_monthly"; // Replace with your Stripe price ID
+
+  const handleSubscribe = async () => {
     setLoading(true);
     setError("");
-    try {
-      // Call backend API to create payment session
-      const res = await fetch("https://manifix.up.railway.app/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: "price_1999_monthly" }), // Stripe or Razorpay price id
-      });
-      const data = await res.json();
 
+    try {
+      const res = await fetch(
+        "https://manifix.up.railway.app/api/create-checkout-session",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ priceId }),
+        }
+      );
+      const data = await res.json();
       if (data.url) {
-        // Redirect to payment gateway
-        window.location.href = data.url;
+        window.location.href = data.url; // Redirect to Stripe Checkout
       } else {
-        setError("Failed to initiate payment. Try again.");
+        setError("Unable to start payment. Try again.");
       }
     } catch (err) {
       console.error(err);
-      setError("Payment error. Try again later.");
+      setError("Payment service not reachable. Try later.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="billing-page" style={{ backgroundImage: `url(/manifix/backgrounds/purple-vibe.jpg)` }}>
+    <div className="billing-page" style={{ backgroundImage: "url(/manifix/backgrounds/purple-vibe.jpg)" }}>
       <header className="billing-header">
-        <img src="/manifix/logo.png" alt="ManifiX Logo" className="billing-logo" />
-        <h1>Premium Membership</h1>
-        <p>Unlock all features for ₹1,999 / month 💎</p>
+        <img src={PngIcons.manifix} alt="ManifiX Logo" className="billing-logo" />
+        <h1>ManifiX Premium</h1>
+        <p>Unlock full access to ManifiX features</p>
       </header>
 
-      <section className="billing-content">
-        <div className="billing-card">
-          <img src={PngIcons.magic16} alt="Premium Icon" className="premium-icon" />
-          <h2>Premium Plan</h2>
-          <p>Access GPT, Magic16, Vibe, and exclusive features</p>
-          <span className="price">₹1,999 / month</span>
-          <button className="btn-primary" onClick={handlePayment} disabled={loading}>
-            {loading ? "Processing..." : "Subscribe Now"}
-          </button>
-          {success && <p className="success-msg">🎉 Payment Successful!</p>}
-          {error && <p className="error-msg">{error}</p>}
-        </div>
+      <section className="billing-card">
+        <h2>Premium Subscription</h2>
+        <p className="price">₹1,999 / month</p>
+        <ul className="features">
+          <li>🎯 Full access to GPT Chat</li>
+          <li>🎵 Magic16 & Vibe features unlocked</li>
+          <li>🔊 STT / TTS enabled like ChatGPT</li>
+          <li>⚡ Priority support & updates</li>
+        </ul>
+
+        <button
+          className="btn-subscribe"
+          onClick={handleSubscribe}
+          disabled={loading}
+        >
+          {loading ? "Processing..." : "Subscribe Now"}
+        </button>
+
+        {error && <p className="billing-error">{error}</p>}
       </section>
 
       <footer className="billing-footer">
-        <p>Secure payment powered by your trusted gateway 🔒</p>
+        <p>© 2026 ManifiX. All rights reserved.</p>
       </footer>
     </div>
   );
-}
+};
+
+export default BillingPage;
