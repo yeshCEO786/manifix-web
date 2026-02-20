@@ -1,7 +1,5 @@
 // src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
-import { SvgIcons } from "../assets/icons/svg-icons";
-import PngIcons from "../assets/icons/png-icons";
 import supabase from "../services/supabase.js";
 import VibeService from "../services/vibe.service.js";
 import "../styles/profile.css";
