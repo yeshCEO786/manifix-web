@@ -1,9 +1,11 @@
 // src/pages/Gpt.jsx
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import "../styles/Gpt.css"; // neon/dark UI styling
-import PngIcons from "../assets/icons/png-icons";
 import { SvgIcons } from "../assets/icons/svg-icons";
+import PngIcons from "../assets/icons/png-icons";
+import "../styles/Gpt.css"; // Custom styling for neon chat bubbles
+
+const API_BASE = "https://manifix.up.railway.app";
 
 export default function Gpt() {
   const [messages, setMessages] = useState([]);
@@ -12,18 +14,15 @@ export default function Gpt() {
   const [listening, setListening] = useState(false);
   const [uploading, setUploading] = useState(false);
   const chatContainer = useRef(null);
-  const inputRef = useRef(null);
 
-  const API_BASE = "https://manifix.up.railway.app"; // Your OpenRouter backend
-
-  // -------------------- SCROLL --------------------
+  // Scroll chat to bottom
   useEffect(() => {
     if (chatContainer.current) {
       chatContainer.current.scrollTop = chatContainer.current.scrollHeight;
     }
   }, [messages]);
 
-  // -------------------- TTS --------------------
+  // Text-to-Speech
   const speak = (text) => {
     if (!voiceEnabled || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -34,7 +33,7 @@ export default function Gpt() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // -------------------- STT --------------------
+  // Speech-to-Text
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = SpeechRecognition ? new SpeechRecognition() : null;
@@ -56,47 +55,33 @@ export default function Gpt() {
     recognition.onend = () => setListening(false);
   };
 
-  // -------------------- SEND MESSAGE --------------------
+  // Send message to backend
   const sendMessage = async (msg, isFile = false) => {
     if (!msg) return;
-
-    // Add user's message
-    const userMsg = { content: msg, role: "user", timestamp: Date.now(), type: isFile ? "file" : "text" };
-    setMessages((prev) => [...prev, userMsg]);
+    const newMsg = { content: msg, role: "user", timestamp: Date.now(), type: isFile ? "file" : "text" };
+    setMessages((prev) => [...prev, newMsg]);
     setInput("");
 
-    // Add thinking message
     const thinkingMsg = { content: "ManifiX is thinking...", role: "bot", type: "thinking" };
     setMessages((prev) => [...prev, thinkingMsg]);
 
     try {
-      // Call OpenRouter backend for human-like AI reply
       const response = await axios.post(`${API_BASE}/chat`, { message: msg });
       const reply = response.data.reply || "I’m here with you 🤍";
-
       setMessages((prev) => prev.filter((m) => m !== thinkingMsg));
       setMessages((prev) => [...prev, { content: reply, role: "bot", timestamp: Date.now() }]);
-
       speak(reply);
-    } catch (err) {
+    } catch {
       setMessages((prev) => prev.filter((m) => m !== thinkingMsg));
-      setMessages((prev) => [
-        ...prev,
-        {
-          content: "❌ Backend not reachable. Check your connection.",
-          role: "bot",
-          timestamp: Date.now(),
-        },
-      ]);
+      setMessages((prev) => [...prev, { content: "❌ Backend not reachable", role: "bot", timestamp: Date.now() }]);
     }
   };
 
-  // -------------------- FILE UPLOAD --------------------
+  // Handle file uploads
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
-
     const formData = new FormData();
     formData.append("file", file);
 
@@ -114,7 +99,7 @@ export default function Gpt() {
     }
   };
 
-  // -------------------- ENTER KEY --------------------
+  // Enter key sends message
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -125,7 +110,7 @@ export default function Gpt() {
   return (
     <div className="gpt-app">
       <header className="gpt-header">
-        <img src="/manifix/logo.png" alt="ManifiX Logo" className="gpt-logo" />
+        <img src="/manifix/assets/logo.png" alt="ManifiX Logo" className="gpt-logo" />
         <h1>ManifiX GPT</h1>
       </header>
 
@@ -147,19 +132,18 @@ export default function Gpt() {
 
       <footer className="gpt-footer">
         <button id="micBtn" className={listening ? "recording" : ""} onClick={handleMic}>
-          {listening ? "🎙" : "🎤"}
+          {listening ? <img src={PngIcons.mic} alt="Recording"/> : <img src={PngIcons.mic} alt="Mic"/>}
         </button>
 
         <textarea
-          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask your ManifiX anything…"
+          placeholder="Ask Your ManifiX Anything…"
         />
 
         <label className="upload-btn">
-          📁
+          <img src={PngIcons.send} alt="Upload" />
           <input type="file" onChange={handleUpload} disabled={uploading} />
         </label>
 
@@ -167,7 +151,10 @@ export default function Gpt() {
           Send
         </button>
 
-        <button className="togglespeech" onClick={() => setVoiceEnabled((prev) => !prev)}>
+        <button
+          className="toggle-voice"
+          onClick={() => setVoiceEnabled((prev) => !prev)}
+        >
           {voiceEnabled ? "🔊 Voice ON" : "🔇 Voice OFF"}
         </button>
       </footer>
