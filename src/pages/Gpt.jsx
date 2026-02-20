@@ -1,8 +1,6 @@
 // src/pages/Gpt.jsx
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { SvgIcons } from "../assets/icons/svg-icons";
-import PngIcons from "../assets/icons/png-icons";
 import "../styles/Gpt.css"; // Custom styling for neon chat bubbles
 
 const API_BASE = "https://manifix.up.railway.app";
