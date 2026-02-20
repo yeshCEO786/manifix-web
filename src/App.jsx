@@ -40,9 +40,7 @@ function App() {
     };
   }, []);
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  if (loading) return <LoadingScreen />;
 
   return (
     <Routes>
@@ -51,14 +49,14 @@ function App() {
       <Route
         path="/"
         element={
-          session ? <Navigate to="/gpt" replace /> : <Landing />
+          session ? <Navigate to="/dashboard" replace /> : <Landing />
         }
       />
 
       <Route
         path="/login"
         element={
-          session ? <Navigate to="/gpt" replace /> : <Login />
+          session ? <Navigate to="/dashboard" replace /> : <Login />
         }
       />
 
