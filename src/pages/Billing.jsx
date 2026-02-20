@@ -1,7 +1,6 @@
-// src/pages/BillingPage.jsx
+// src/pages/Billing.jsx
 import React, { useState } from "react";
-import PngIcons from "../assets/icons/png-icons"; // Core icons including logo
-import "../styles/BillingPage.css"; // create this file for styling
+import "../styles/Billing666.css"; // create this file for styling
 
 const BillingPage = () => {
   const [loading, setLoading] = useState(false);
