@@ -1,11 +1,13 @@
 // src/pages/Vibe.jsx
 import React, { useEffect, useState } from "react";
+import { SvgIcons } from "../assets/icons/svg-icons"; // SVG icons
+import PngIcons from "../assets/icons/png-icons";     // PNG icons
 import VibeService from "../services/vibe.service.js";
 import AuthService from "../services/auth.service.js";
-import Logo from "../assets/logo.png";    
+import Logo from "../assets/logo.png";                // Import logo from assets
 import "../styles/vibe.css";
 
-// Available fonts
+// Fonts available
 const fonts = ["Inter","Playfair Display","Poppins","Montserrat","Cursive","Serif"];
 
 const Vibe = () => {
@@ -64,11 +66,10 @@ const Vibe = () => {
         backgroundPosition: "center",
       }}
     >
-      {/* Header */}
       <header className="vibe-header">
-        <img src="/manifix/src/assets/logo.png" alt="ManifiX Logo" className="vibe-logo" />
+        <img src={Logo} alt="ManifiX Logo" className="vibe-logo" />
         <h1>✨ Your Vibe</h1>
-        <p className="subtitle">Today Vibe</p>
+        <p className="subtitle">Express your energy, thoughts, or manifestation 🌙</p>
       </header>
 
       {/* CREATE VIBE */}
