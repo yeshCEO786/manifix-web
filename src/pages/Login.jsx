@@ -1,8 +1,10 @@
-// src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/auth.service";
-import Logo from "../assets/logo.svg";
+
+import logo from "../assets/logo.svg";
+import bgImage from "../background/background/dark-gradient.jpg";
+
 import "../styles/Login.css";
 
 export default function Login() {
@@ -23,7 +25,7 @@ export default function Login() {
           ? await authService.login(email.trim(), password)
           : await authService.signUp(email.trim(), password);
 
-      if (user) navigate("/dashboard", { replace: true });
+      if (user) navigate("/app", { replace: true }); // ✅ fixed
     } catch (err) {
       setError(err?.message || "Authentication failed");
     } finally {
@@ -35,7 +37,7 @@ export default function Login() {
     setLoading(true);
     try {
       await authService.googleLogin();
-      navigate("/dashboard", { replace: true });
+      navigate("/app", { replace: true }); // ✅ fixed
     } catch (err) {
       setError("Google sign-in failed");
     } finally {
@@ -44,17 +46,30 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
+    <div
+      className="login-wrapper"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="overlay" />
+
+      <div className="login-card">
+
+        {/* BRAND */}
         <div className="brand">
-          <img src={Logo} alt="ManifiX Logo" />
+          <img src={logo} alt="ManifiX Logo" />
           <h1>ManifiX</h1>
-          <p>Intelligence meets Intention</p>
+          <p className="tagline">
+            Intelligence meets Intention
+          </p>
         </div>
 
-        <h2>Welcome Back</h2>
-        <p className="subtitle">Access your AI Ritual Companion</p>
+        {/* HEADER */}
+        <h2>Welcome Back to Your Ritual</h2>
+        <p className="subtitle">
+          Continue your daily alignment journey
+        </p>
 
+        {/* GOOGLE */}
         <button
           className="google-btn"
           onClick={handleGoogleAuth}
@@ -67,9 +82,10 @@ export default function Login() {
           <span>or continue with email</span>
         </div>
 
+        {/* INPUTS */}
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
@@ -85,6 +101,7 @@ export default function Login() {
 
         {error && <p className="error">{error}</p>}
 
+        {/* ACTIONS */}
         <button
           className="primary-btn"
           onClick={() => handleEmailAuth("login")}
@@ -101,9 +118,14 @@ export default function Login() {
           Create Account
         </button>
 
+        <p className="microcopy">
+          Your streak grows when you show up.
+        </p>
+
         <p className="footer">
           By continuing, you agree to our Terms & Privacy Policy.
         </p>
+
       </div>
     </div>
   );
