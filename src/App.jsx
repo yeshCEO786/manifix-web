@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import supabase from "./services/supabase";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
 import Landing from "./pages/Landing";
@@ -20,6 +21,7 @@ function App() {
 
     const initializeAuth = async () => {
       const { data } = await supabase.auth.getSession();
+
       if (mounted) {
         setSession(data.session);
         setLoading(false);
@@ -44,8 +46,8 @@ function App() {
 
   return (
     <Routes>
+      {/* ---------------- PUBLIC ROUTES ---------------- */}
 
-      {/* Public Routes */}
       <Route
         path="/"
         element={
@@ -60,7 +62,8 @@ function App() {
         }
       />
 
-      {/* Protected Routes */}
+      {/* ---------------- PROTECTED ROUTES ---------------- */}
+
       <Route
         path="/dashboard"
         element={
@@ -97,23 +100,14 @@ function App() {
         }
       />
 
-      {/* 404 */}
-      <Route path="*" element={<NotFound />} />
+      {/* ---------------- 404 ---------------- */}
 
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
 
-/* ---------------- Protected Route ---------------- */
-
-function ProtectedRoute({ session, children }) {
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-}
-
-/* ---------------- Loading Screen ---------------- */
+/* ---------------- LOADING SCREEN ---------------- */
 
 function LoadingScreen() {
   return (
