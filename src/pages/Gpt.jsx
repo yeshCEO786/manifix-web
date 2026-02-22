@@ -149,10 +149,24 @@ export default function Gpt() {
                 </a>
               ) : (
                 <ReactMarkdown>{msg.content}</ReactMarkdown>
-              )}
-            </div>
-          </div>
-        ))}
+          {msg.role === "bot" && msg.type !== "thinking" &&
+            [...Array(5)].map((_, i) => (
+              <span
+                key={i}
+                className="star"
+                style={{
+                  top: `${Math.random() * 80}%`,
+                  left: `${Math.random() * 80}%`,
+                  animationDelay: `${Math.random()}s`,
+                }}
+              />
+            ))
+          }
+        </>
+      )}
+    </div>
+  </div>
+))}
       </main>
 
       <footer className="gpt-footer">
