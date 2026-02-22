@@ -68,6 +68,10 @@ const Dashboard = () => {
             title="Vibe Analytics"
             desc="Track emotional and manifestation growth over time."
           />
+          <FeatureCard
+            title="Affirmation Engine"
+            desc="Daily subconscious reprogramming for elite success."
+          />
         </div>
       </section>
     </div>
