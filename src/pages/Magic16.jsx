@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import * as posedetection from "@tensorflow-models/pose-detection";
 import "@tensorflow/tfjs-backend-webgl";
 import "../styles/magic16.css";
+import { useApp } from "../context/AppContext";
 
 import logo from "../assets/logo.png";
 
@@ -68,177 +69,219 @@ export default function Magic16() {
     { img: med7, text: "Visualize success.", duration: 60 },
   ];
 
-  // -------- VOICE --------
-  const speak = (text) => {
-    const now = Date.now();
-    if (now - lastVoiceRef.current < 4000) return; // throttle
-    lastVoiceRef.current = now;
+ // -------- VOICE --------
+const speak = (text) => {
+  if (!("speechSynthesis" in window)) return;
 
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.95;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utter);
-  };
+  const now = Date.now();
+  if (now - lastVoiceRef.current < 4000) return; // throttle
+  lastVoiceRef.current = now;
 
-  // -------- AUDIO SYSTEM --------
-  const playAudio = (src) => {
-    if (audioRef.current) audioRef.current.pause();
-    const audio = new Audio(src);
-    audio.loop = true;
-    audio.volume = 0.5;
-    audio.play();
-    audioRef.current = audio;
-  };
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.95;
 
-  // -------- CAMERA INIT --------
-  useEffect(() => {
-    const init = async () => {
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+};
+
+
+// -------- AUDIO SYSTEM --------
+const playAudio = (src) => {
+  if (!src) return;
+
+  if (audioRef.current) {
+    audioRef.current.pause();
+    audioRef.current = null;
+  }
+
+  const audio = new Audio(src);
+  audio.loop = true;
+  audio.volume = 0.5;
+  audio.play().catch(() => {});
+  audioRef.current = audio;
+};
+
+
+// -------- CAMERA INIT --------
+useEffect(() => {
+  const init = async () => {
+    try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       streamRef.current = stream;
-      videoRef.current.srcObject = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
 
       detectorRef.current = await posedetection.createDetector(
         posedetection.SupportedModels.MoveNet,
-        { modelType: posedetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+        {
+          modelType:
+            posedetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+        }
       );
-    };
-
-    init();
-
-    return () => {
-      if (streamRef.current)
-        streamRef.current.getTracks().forEach((t) => t.stop());
-      clearInterval(timerRef.current);
-      clearInterval(detectRef.current);
-      if (audioRef.current) audioRef.current.pause();
-    };
-  }, []);
-
-  // -------- ANGLE --------
-  const angle = (A, B, C) => {
-    const AB = { x: A.x - B.x, y: A.y - B.y };
-    const CB = { x: C.x - B.x, y: C.y - B.y };
-    const dot = AB.x * CB.x + AB.y * CB.y;
-    const magAB = Math.hypot(AB.x, AB.y);
-    const magCB = Math.hypot(CB.x, CB.y);
-    return (Math.acos(dot / (magAB * magCB)) * 180) / Math.PI;
+    } catch (err) {
+      console.error("Camera or detector error:", err);
+      setCameraError?.(true);
+    }
   };
 
-  // -------- DETECTION --------
-  const detect = useCallback(async () => {
-    if (!detectorRef.current) return;
+  init();
 
-    const poses = await detectorRef.current.estimatePoses(videoRef.current);
-    if (!poses.length) return;
+  return () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+    }
+
+    clearInterval(timerRef.current);
+    clearInterval(detectRef.current);
+
+    if (audioRef.current) audioRef.current.pause();
+    window.speechSynthesis?.cancel();
+  };
+}, []);
+
+
+// -------- SAFE ANGLE --------
+const angle = (A, B, C) => {
+  const AB = { x: A.x - B.x, y: A.y - B.y };
+  const CB = { x: C.x - B.x, y: C.y - B.y };
+
+  const dot = AB.x * CB.x + AB.y * CB.y;
+  const magAB = Math.hypot(AB.x, AB.y);
+  const magCB = Math.hypot(CB.x, CB.y);
+
+  const denom = magAB * magCB;
+  if (!denom) return 0;
+
+  const cos = Math.min(Math.max(dot / denom, -1), 1);
+  return (Math.acos(cos) * 180) / Math.PI;
+};
+
+
+// -------- DETECTION --------
+const detect = useCallback(async () => {
+  if (!detectorRef.current || !videoRef.current) return;
+
+  try {
+    const poses = await detectorRef.current.estimatePoses(
+      videoRef.current
+    );
+
+    if (!poses?.length) return;
 
     if (stepIndex === 6) {
       const kp = poses[0].keypoints;
-      const hip = kp.find(k => k.name === "left_hip");
-      const knee = kp.find(k => k.name === "left_knee");
-      const ankle = kp.find(k => k.name === "left_ankle");
+
+      const hip = kp.find((k) => k.name === "left_hip");
+      const knee = kp.find((k) => k.name === "left_knee");
+      const ankle = kp.find((k) => k.name === "left_ankle");
 
       if (hip && knee && ankle) {
         const a = angle(hip, knee, ankle);
         const score = Math.max(0, 100 - Math.abs(a - 90));
+
         setLiveScore(Math.round(score));
 
-        if (scoreSamples.length < 500)
-          setScoreSamples(prev => [...prev, score]);
+        setScoreSamples((prev) =>
+          prev.length < 500 ? [...prev, score] : prev
+        );
 
         if (a < 75) speak("Bend your knee deeper");
-        if (a > 110) speak("Do not overextend knee");
+        if (a > 110) speak("Do not overextend your knee");
       }
     }
-  }, [stepIndex, scoreSamples.length]);
-
-  // -------- TIMER --------
-  const start = () => {
-    if (playing) return;
-
-    setPlaying(true);
-    playAudio(guidedYogaAudio);
-
-    timerRef.current = setInterval(() => {
-      setTotalTime(t => (t > 0 ? t - 1 : 0));
-
-      setStepTime(prev => {
-        if (prev <= 1) {
-          setStepIndex(i => {
-            const next = i + 1;
-            if (next >= steps.length) {
-              finish();
-              return i;
-            }
-
-            if (next >= 8) playAudio(meditationAudio);
-            return next;
-          });
-          return steps[stepIndex + 1]?.duration || 60;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    detectRef.current = setInterval(detect, 400);
-  };
-
-  const stop = () => {
-    clearInterval(timerRef.current);
-    clearInterval(detectRef.current);
-    if (audioRef.current) audioRef.current.pause();
-    setPlaying(false);
-  };
-
-  const finish = () => {
-    stop();
-    setCompleted(true);
-  };
-
-  const format = (s) =>
-    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-
-  // -------- RESULT --------
-  if (completed) {
-    const avg =
-      scoreSamples.length > 0
-        ? Math.round(scoreSamples.reduce((a, b) => a + b, 0) / scoreSamples.length)
-        : 85;
-
-    return (
-      <div className="result-overlay">
-        <div className="result-card">
-          <h2>✨ Ritual Complete</h2>
-          <h1>{avg}%</h1>
-          <p>Performance Score</p>
-          <button onClick={() => window.location.reload()}>
-            Start Again
-          </button>
-        </div>
-      </div>
-    );
+  } catch (err) {
+    console.error("Detection error:", err);
   }
+}, [stepIndex]);
+
+
+// -------- TIMER --------
+const start = () => {
+  if (playing) return;
+
+  setPlaying(true);
+
+  if (detectRef.current) clearInterval(detectRef.current);
+  if (timerRef.current) clearInterval(timerRef.current);
+
+  timerRef.current = setInterval(() => {
+    setTotalTime((t) => (t > 0 ? t - 1 : 0));
+
+    setStepTime((prev) => {
+      if (prev <= 1) {
+        setStepIndex((i) => {
+          const next = i + 1;
+
+          if (next >= steps.length) {
+            finish();
+            return i;
+          }
+
+          if (next >= 8 && meditationAudio)
+            playAudio(meditationAudio);
+
+          setStepTime(steps[next]?.duration || 60);
+          speak(steps[next]?.text);
+
+          return next;
+        });
+
+        return 0;
+      }
+
+      return prev - 1;
+    });
+  }, 1000);
+
+  detectRef.current = setInterval(detect, 400);
+};
+
+
+const stop = () => {
+  clearInterval(timerRef.current);
+  clearInterval(detectRef.current);
+
+  if (audioRef.current) audioRef.current.pause();
+
+  setPlaying(false);
+};
+
+
+const finish = () => {
+  stop();
+  setCompleted(true);
+};
+
+
+// -------- FORMAT --------
+const format = (s) =>
+  `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(
+    s % 60
+  ).padStart(2, "0")}`;
+
+
+// -------- RESULT --------
+if (completed) {
+  const avg =
+    scoreSamples.length > 0
+      ? Math.round(
+          scoreSamples.reduce((a, b) => a + b, 0) /
+            scoreSamples.length
+        )
+      : 85;
 
   return (
-    <div className="magic16-container">
-      <img src={logo} alt="Logo" className="magic16-logo" />
-      <h2>Magic 16 Ritual</h2>
-
-      <img src={steps[stepIndex].img} alt="step" className="magic16-image" />
-
-      <h3>{steps[stepIndex].text}</h3>
-
-      <div className="timer-box">
-        <p>Total Time: {format(totalTime)}</p>
-        <p>Step Time: {format(stepTime)}</p>
+    <div className="result-overlay">
+      <div className="result-card">
+        <h2>✨ Ritual Complete</h2>
+        <h1>{avg}%</h1>
+        <p>Performance Score</p>
+        <button onClick={() => window.location.reload()}>
+          Start Again
+        </button>
       </div>
-
-      <p>Live Score: {liveScore}%</p>
-
-      <button onClick={playing ? stop : start}>
-        {playing ? "Pause" : "Start"}
-      </button>
-
-      <video ref={videoRef} autoPlay muted hidden />
     </div>
   );
 }
