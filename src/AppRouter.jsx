@@ -1,22 +1,43 @@
 // src/AppRouter.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
+
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
+import App from "./pages/App";
+
+import { AppProvider } from "./context/AppContext";
 
 export default function AppRouter({ user }) {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={user ? <Navigate to="/dashboard" /> : <Login />}
-      />
-      <Route
-        path="/dashboard"
-        element={user ? <Dashboard /> : <Navigate to="/" />}
-      />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <AppProvider>
+      <Routes>
+
+        {/* Landing Page */}
+        <Route
+          path="/"
+          element={<Landing />}
+        />
+
+        {/* Login Page */}
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/app" /> : <Login />}
+        />
+
+        {/* Protected Main App */}
+        <Route
+          path="/app"
+          element={user ? <App /> : <Navigate to="/login" />}
+        />
+
+        {/* Catch All */}
+        <Route
+          path="*"
+          element={<Navigate to="/" />}
+        />
+
+      </Routes>
+    </AppProvider>
   );
 }
