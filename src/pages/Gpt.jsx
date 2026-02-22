@@ -1,12 +1,17 @@
 // src/pages/Gpt.jsx
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import "../styles/Gpt.css"; // Custom styling for neon chat bubbles
+import ReactMarkdown from "react-markdown";
+import "../styles/Gpt.css"; // Neon chat styling
 
 const API_BASE = "https://manifix.up.railway.app";
 
 export default function Gpt() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    // Load saved chat from localStorage
+    const saved = localStorage.getItem("chatMessages");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [input, setInput] = useState("");
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [listening, setListening] = useState(false);
@@ -18,6 +23,8 @@ export default function Gpt() {
     if (chatContainer.current) {
       chatContainer.current.scrollTop = chatContainer.current.scrollHeight;
     }
+    // Save messages to localStorage
+    localStorage.setItem("chatMessages", JSON.stringify(messages));
   }, [messages]);
 
   // Text-to-Speech
@@ -53,29 +60,49 @@ export default function Gpt() {
     recognition.onend = () => setListening(false);
   };
 
-  // Send message to backend
+  // Send message
   const sendMessage = async (msg, isFile = false) => {
     if (!msg) return;
-    const newMsg = { content: msg, role: "user", timestamp: Date.now(), type: isFile ? "file" : "text" };
-    setMessages((prev) => [...prev, newMsg]);
+
+    const userMsg = { content: msg, role: "user", timestamp: Date.now(), type: isFile ? "file" : "text" };
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
 
-    const thinkingMsg = { content: "ManifiX is thinking...", role: "bot", type: "thinking" };
+    const thinkingMsg = { content: "ManifiX is thinking...", role: "bot", type: "thinking", timestamp: Date.now() };
     setMessages((prev) => [...prev, thinkingMsg]);
 
     try {
-      const response = await axios.post(`${API_BASE}/chat`, { message: msg });
-      const reply = response.data.reply || "I’m here with you 🤍";
+      const response = await axios.post(`${API_BASE}/chat`, { message: msg }, { timeout: 10000 });
+      const replyText = response.data.reply || "I’m here with you 🤍";
+
+      // Remove thinking message
       setMessages((prev) => prev.filter((m) => m !== thinkingMsg));
-      setMessages((prev) => [...prev, { content: reply, role: "bot", timestamp: Date.now() }]);
-      speak(reply);
-    } catch {
+
+      // Streaming effect
+      let idx = 0;
+      const replyMsg = { content: "", role: "bot", timestamp: Date.now(), type: "text" };
+      setMessages((prev) => [...prev, replyMsg]);
+
+      const interval = setInterval(() => {
+        if (idx < replyText.length) {
+          replyMsg.content += replyText[idx];
+          setMessages((prev) => [...prev.filter((m) => m !== replyMsg), replyMsg]);
+          idx++;
+        } else {
+          clearInterval(interval);
+          speak(replyText);
+        }
+      }, 25); // 25ms per character ~ typing effect
+    } catch (err) {
       setMessages((prev) => prev.filter((m) => m !== thinkingMsg));
-      setMessages((prev) => [...prev, { content: "❌ Backend not reachable", role: "bot", timestamp: Date.now() }]);
+      setMessages((prev) => [
+        ...prev,
+        { content: "❌ Backend not reachable. Try again.", role: "bot", timestamp: Date.now() },
+      ]);
     }
   };
 
-  // Handle file uploads
+  // File upload
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -121,7 +148,7 @@ export default function Gpt() {
                   📎 {msg.content.split("/").pop()}
                 </a>
               ) : (
-                msg.content
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
               )}
             </div>
           </div>
@@ -130,7 +157,7 @@ export default function Gpt() {
 
       <footer className="gpt-footer">
         <button id="micBtn" className={listening ? "recording" : ""} onClick={handleMic}>
-          {listening ? <img src={PngIcons.mic} alt="Recording"/> : <img src={PngIcons.mic} alt="Mic"/>}
+          🎤
         </button>
 
         <textarea
@@ -141,7 +168,7 @@ export default function Gpt() {
         />
 
         <label className="upload-btn">
-          <img src={PngIcons.send} alt="Upload" />
+          📎
           <input type="file" onChange={handleUpload} disabled={uploading} />
         </label>
 
@@ -149,10 +176,7 @@ export default function Gpt() {
           Send
         </button>
 
-        <button
-          className="toggle-voice"
-          onClick={() => setVoiceEnabled((prev) => !prev)}
-        >
+        <button className="toggle-voice" onClick={() => setVoiceEnabled((prev) => !prev)}>
           {voiceEnabled ? "🔊 Voice ON" : "🔇 Voice OFF"}
         </button>
       </footer>
