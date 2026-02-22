@@ -1,9 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import logo from "../assets/logo.png";
 import bgImage from "../background/background/dark-gradient.jpg";
-import splashLogo from "../assets/images/logos/splash-screen.png";
-import verifiedBadge from "../assets/images/profile/verified-badge.png";
 
 import "../styles/Landing.css";
 
@@ -17,25 +16,22 @@ export default function Landing() {
     >
       <div className="overlay" />
 
-      {/* TOP SECTION */}
+      {/* BRAND SECTION */}
       <div className="landing-top">
-        <img src={splashLogo} alt="ManifiX" className="landing-logo" />
-        <div className="verified">
-          <img src={verifiedBadge} alt="Verified" />
-          <span>Trusted Growth System</span>
-        </div>
+        <img src={logo} alt="ManifiX Logo" className="main-logo" />
+        <h1 className="brand-name">ManifiX</h1>
       </div>
 
-      {/* HERO */}
+      {/* HERO SECTION */}
       <div className="landing-hero">
-        <h1>
+        <h2>
           Master Your Mind.  
           <br />
           Elevate Your Energy.
-        </h1>
+        </h2>
 
         <p>
-          Magic16 Daily Ritual.  
+          16-Minute Daily Ritual.  
           AI Reflection Engine.  
           Personal Vibe Tracking.
         </p>
