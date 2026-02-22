@@ -204,3 +204,66 @@ button.recording {
     max-width: 100%;
   }
 }
+/* --- ManifiX Twinkling Star Chat Bubble --- */
+
+/* Bot message wrapper */
+.msg-wrapper.bot .msg-bubble {
+  background: linear-gradient(135deg, #6e00ff, #00f0ff);
+  color: #fff;
+  border-bottom-left-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Create star elements using pseudo-elements */
+.msg-wrapper.bot .msg-bubble::before,
+.msg-wrapper.bot .msg-bubble::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px #fff, 0 0 15px #6e00ff, 0 0 20px #00f0ff;
+  animation: twinkle 2s infinite ease-in-out;
+}
+
+/* Position stars at random points */
+.msg-wrapper.bot .msg-bubble::before {
+  top: 10%;
+  left: 20%;
+  animation-delay: 0s;
+}
+.msg-wrapper.bot .msg-bubble::after {
+  top: 60%;
+  left: 70%;
+  animation-delay: 1s;
+}
+
+/* Add multiple tiny stars using child spans */
+.msg-wrapper.bot .msg-bubble span.star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px #fff, 0 0 12px #6e00ff, 0 0 16px #00f0ff;
+  animation: twinkle 2s infinite ease-in-out;
+}
+
+/* Keyframe for twinkling */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.5) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(45deg); }
+}
+
+/* Optional: generate stars in JSX */
+/* Example: inside your message bubble for bot: */
+/*
+<div className="msg-bubble bot">
+  {msg.content}
+  <span className="star" style={{top: '15%', left: '40%', animationDelay: '0.3s'}}></span>
+  <span className="star" style={{top: '50%', left: '80%', animationDelay: '0.7s'}}></span>
+  <span className="star" style={{top: '70%', left: '30%', animationDelay: '1s'}}></span>
+</div>
+*/
