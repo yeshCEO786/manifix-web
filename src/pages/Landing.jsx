@@ -1,74 +1,57 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+
+import bgImage from "../background/background/dark-gradient.jpg";
+import splashLogo from "../assets/images/logos/splash-screen.png";
+import verifiedBadge from "../assets/images/profile/verified-badge.png";
+
 import "../styles/Landing.css";
 
-function Landing() {
+export default function Landing() {
   const navigate = useNavigate();
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    setLoaded(true);
-  }, []);
 
   return (
-    <div className="landing-wrapper">
+    <div
+      className="landing-container"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="overlay" />
 
-      {/* Background Glow */}
-      <div className="background-glow"></div>
-
-      {/* Navigation */}
-      <header className="landing-nav">
-        <div className="logo">ManifiX</div>
-
-        <div className="nav-actions">
-          <button
-            className="login-link"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-
-          <button
-            className="primary-btn"
-            onClick={() => navigate("/login")}
-          >
-            Get Started
-          </button>
+      {/* TOP SECTION */}
+      <div className="landing-top">
+        <img src={splashLogo} alt="ManifiX" className="landing-logo" />
+        <div className="verified">
+          <img src={verifiedBadge} alt="Verified" />
+          <span>Trusted Growth System</span>
         </div>
-      </header>
+      </div>
 
-      {/* Hero Section */}
-      <section className={`hero ${loaded ? "fade-in" : ""}`}>
-        <h1 className="hero-title">
-          Intelligence meets Intention
+      {/* HERO */}
+      <div className="landing-hero">
+        <h1>
+          Master Your Mind.  
+          <br />
+          Elevate Your Energy.
         </h1>
 
-        <p className="hero-subtitle">
-          ManifiX is your AI Ritual Companion — combining focus,
-          clarity, and energy into one powerful experience.
+        <p>
+          Magic16 Daily Ritual.  
+          AI Reflection Engine.  
+          Personal Vibe Tracking.
         </p>
 
-        <div className="hero-buttons">
-          <button
-            className="primary-btn large"
-            onClick={() => navigate("/login")}
-          >
-            Enter ManifiX
-          </button>
+        <button
+          className="landing-button"
+          onClick={() => navigate("/login")}
+        >
+          Begin Your Ritual →
+        </button>
+      </div>
 
-          <button className="secondary-btn">
-            Learn More
-          </button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="landing-footer">
-        © {new Date().getFullYear()} ManifiX. All rights reserved.
-      </footer>
-
+      {/* FOOTER */}
+      <div className="landing-footer">
+        <span>Designed for clarity. Built for transformation.</span>
+      </div>
     </div>
   );
 }
-
-export default Landing;
