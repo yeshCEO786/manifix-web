@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import authService from "../services/auth.service";
-import { supabase } from "../lib/supabase"; // make sure this exists
+import { supabase } from "../services/supabase"; // make sure this exists
 
 const AppContext = createContext();
 
