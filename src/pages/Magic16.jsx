@@ -285,3 +285,4 @@ if (completed) {
     </div>
   );
 }
+export default Magic16;
