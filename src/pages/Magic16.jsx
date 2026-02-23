@@ -285,4 +285,36 @@ if (completed) {
     </div>
   );
 }
-export default Magic16;
+
+// ✅ MAIN UI RETURN (THIS IS MISSING IN YOUR FILE)
+return (
+  <div className="magic16-container">
+    <img src={logo} alt="ManifiX Logo" className="magic16-logo" />
+
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      muted
+      className="camera-feed"
+    />
+
+    <div className="step-display">
+      <img src={steps[stepIndex]?.img} alt="step" />
+      <h2>{steps[stepIndex]?.text}</h2>
+    </div>
+
+    <div className="timer">
+      <h3>{format(totalTime)}</h3>
+    </div>
+
+    <div className="controls">
+      {!playing ? (
+        <button onClick={start}>Start Ritual</button>
+      ) : (
+        <button onClick={stop}>Pause</button>
+      )}
+    </div>
+  </div>
+);
+}
