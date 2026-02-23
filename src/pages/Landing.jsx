@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import logo from "../assets/logo.png";
-import bgImage from "../background/dark-gradient.jpg";
+import bgImage from "../assets/background/dark-gradient.jpg";
 
 import "../styles/Landing.css";
 
