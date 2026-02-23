@@ -139,35 +139,46 @@ export default function Gpt() {
         <h1>ManifiX GPT</h1>
       </header>
 
-      <main ref={chatContainer} className="chat-container">
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`msg-wrapper ${msg.role}`}>
-            <div className={`msg-bubble ${msg.type === "thinking" ? "thinking" : ""}`}>
-              {msg.type === "file" ? (
-                <a href={msg.content} target="_blank" rel="noopener noreferrer" className="file-link">
-                  📎 {msg.content.split("/").pop()}
-                </a>
-              ) : (
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
-          {msg.role === "bot" && msg.type !== "thinking" &&
-            [...Array(5)].map((_, i) => (
-              <span
-                key={i}
-                className="star"
-                style={{
-                  top: `${Math.random() * 80}%`,
-                  left: `${Math.random() * 80}%`,
-                  animationDelay: `${Math.random()}s`,
-                }}
-              />
-            ))
-          }
-        </>
-      )}
+     <main className="gpt-main">
+  {messages.map((msg, index) => (
+    <div
+      key={index}
+      className={`message-row ${msg.role === "user" ? "user" : "bot"}`}
+    >
+      <div className="message-bubble">
+        {msg.isFile ? (
+          <a
+            href={msg.content}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="file-link"
+          >
+            📎 {msg.content.split("/").pop()}
+          </a>
+        ) : (
+          <>
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
+
+            {/* ✨ Twinkling Stars (Only for Bot, not thinking messages) */}
+            {msg.role === "bot" &&
+              msg.type !== "thinking" &&
+              [...Array(5)].map((_, i) => (
+                <span
+                  key={i}
+                  className="twinkle-star"
+                  style={{
+                    top: `${Math.random() * 80}%`,
+                    left: `${Math.random() * 80}%`,
+                    animationDelay: `${Math.random()}s`,
+                  }}
+                />
+              ))}
+          </>
+        )}
+      </div>
     </div>
-  </div>
-))}
-      </main>
+  ))}
+</main>
 
       <footer className="gpt-footer">
         <button id="micBtn" className={listening ? "recording" : ""} onClick={handleMic}>
@@ -186,9 +197,13 @@ export default function Gpt() {
           <input type="file" onChange={handleUpload} disabled={uploading} />
         </label>
 
-        <button onClick={() => sendMessage(input)} disabled={!input} className="primary">
-          Send
-        </button>
+        <button
+  onClick={() => sendMessage(input.trim())}
+  disabled={!input.trim()}
+  className="primary"
+>
+  Send
+</button>
 
         <button className="toggle-voice" onClick={() => setVoiceEnabled((prev) => !prev)}>
           {voiceEnabled ? "🔊 Voice ON" : "🔇 Voice OFF"}
