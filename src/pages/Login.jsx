@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import authService from "../services/auth.service";
 
 import logo from "../assets/logo.svg";
-import bgImage from "../background/dark-gradient.jpg";
+import bgImage from "../assets/backgrounds/dark-gradient.jpg";
 
 import "../styles/Login.css";
 
