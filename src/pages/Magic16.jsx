@@ -46,7 +46,10 @@ export default function Magic16() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [stepTime, setStepTime] = useState(60);
- const [totalTime, setTotalTime] = useState(TOTAL_DURATION);
+const TOTAL_DURATION = steps.reduce(
+  (sum, step) => sum + step.duration,
+  0
+);
   const [playing, setPlaying] = useState(false);
   const [scoreSamples, setScoreSamples] = useState([]);
   const [liveScore, setLiveScore] = useState(0);
