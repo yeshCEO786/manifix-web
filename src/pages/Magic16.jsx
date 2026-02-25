@@ -5,6 +5,7 @@ import * as posedetection from "@tensorflow-models/pose-detection";
 import "@tensorflow/tfjs-backend-webgl";
 import "../styles/magic16.css";
 import { useApp } from "../context/AppContext";
+import confetti from "canvas-confetti";
 
 import logo from "../assets/logo.png";
 
@@ -45,11 +46,14 @@ export default function Magic16() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const [stepTime, setStepTime] = useState(60);
-  const [totalTime, setTotalTime] = useState(16 * 60);
+ const [totalTime, setTotalTime] = useState(TOTAL_DURATION);
   const [playing, setPlaying] = useState(false);
   const [scoreSamples, setScoreSamples] = useState([]);
   const [liveScore, setLiveScore] = useState(0);
   const [completed, setCompleted] = useState(false);
+  const [cameraError, setCameraError] = useState(false);
+const [loading, setLoading] = useState(true);
+const [progress, setProgress] = useState(0);
 
   const steps = [
     { img: yoga1, text: "Mountain Pose. Stand tall.", duration: 60 },
@@ -68,7 +72,10 @@ export default function Magic16() {
     { img: med6, text: "Stay present.", duration: 60 },
     { img: med7, text: "Visualize success.", duration: 60 },
   ];
-
+const TOTAL_DURATION = steps.reduce(
+  (sum, step) => sum + step.duration,
+  0
+);
  // -------- VOICE --------
 const speak = (text) => {
   if (!("speechSynthesis" in window)) return;
@@ -120,9 +127,11 @@ useEffect(() => {
             posedetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
         }
       );
+      // ✅ ADD HERE
+      setLoading(false);
     } catch (err) {
       console.error("Camera or detector error:", err);
-      setCameraError?.(true);
+      setCameraError(true);
     }
   };
 
@@ -206,10 +215,19 @@ const start = () => {
   if (detectRef.current) clearInterval(detectRef.current);
   if (timerRef.current) clearInterval(timerRef.current);
 
-  timerRef.current = setInterval(() => {
-    setTotalTime((t) => (t > 0 ? t - 1 : 0));
+ timerRef.current = setInterval(() => {
 
-    setStepTime((prev) => {
+  setTotalTime((t) => {
+    const newTime = t > 0 ? t - 1 : 0;
+
+setProgress(
+  Math.round(((TOTAL_DURATION - newTime) / TOTAL_DURATION) * 100)
+);
+
+    return newTime;
+  });
+
+  setStepTime((prev) => {
       if (prev <= 1) {
         setStepIndex((i) => {
           const next = i + 1;
@@ -247,10 +265,36 @@ const stop = () => {
 
   setPlaying(false);
 };
-
+const resetRitual = () => {
+  setStepIndex(0);
+  setStepTime(steps[0].duration);
+  setTotalTime(TOTAL_DURATION);
+  setProgress(0);
+  setCompleted(false);
+  setScoreSamples([]);
+  setLiveScore(0);
+  setPlaying(false);
+};
 
 const finish = () => {
   stop();
+
+  // 🔊 Completion Beep
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+  oscillator.connect(audioCtx.destination);
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.2);
+
+  // 🎉 Confetti Burst
+  confetti({
+    particleCount: 200,
+    spread: 90,
+    origin: { y: 0.6 },
+  });
+
   setCompleted(true);
 };
 
@@ -273,22 +317,36 @@ if (completed) {
       : 85;
 
   return (
-    <div className="result-overlay">
-      <div className="result-card">
+   <div className="result-overlay fade-in">
+  <div className="result-card scale-up">
         <h2>✨ Ritual Complete</h2>
         <h1>{avg}%</h1>
         <p>Performance Score</p>
-        <button onClick={() => window.location.reload()}>
-          Start Again
-        </button>
+<button onClick={resetRitual}>
+  Start Again
+</button>
+        
       </div>
     </div>
   );
 }
 
-// ✅ MAIN UI RETURN (THIS IS MISSING IN YOUR FILE)
 return (
   <div className="magic16-container">
+
+    {loading && (
+      <div className="loading-screen">
+        <h2>Initializing AI Ritual...</h2>
+      </div>
+    )}
+
+    {cameraError && (
+      <div className="error-screen">
+        <h2>Camera Access Required</h2>
+        <p>Please allow camera permission to start.</p>
+      </div>
+    )}
+
     <img src={logo} alt="ManifiX Logo" className="magic16-logo" />
 
     <video
@@ -299,10 +357,29 @@ return (
       className="camera-feed"
     />
 
+    {/* Progress Bar */}
+    <div className="progress-bar">
+      <div
+        className="progress-fill"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+
+    <div className="step-counter">
+      Step {stepIndex + 1} / {steps.length}
+    </div>
+
     <div className="step-display">
       <img src={steps[stepIndex]?.img} alt="step" />
       <h2>{steps[stepIndex]?.text}</h2>
     </div>
+
+    {stepIndex === 6 && (
+      <div className="live-score">
+        <h3>Posture Score</h3>
+        <h1>{liveScore}%</h1>
+      </div>
+    )}
 
     <div className="timer">
       <h3>{format(totalTime)}</h3>
@@ -310,11 +387,20 @@ return (
 
     <div className="controls">
       {!playing ? (
-        <button onClick={start}>Start Ritual</button>
+       <button
+  className="start-btn"
+  onClick={start}
+  disabled={loading}
+>
+          Start 
+        </button>
       ) : (
-        <button onClick={stop}>Pause</button>
+        <button className="pause-btn" onClick={stop}>
+          Pause
+        </button>
       )}
     </div>
+
   </div>
 );
 }
