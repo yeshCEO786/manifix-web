@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import VibeService from "../services/vibe.service.js";
 import AuthService from "../services/auth.service.js";
-import Logo from "../assets/logo.png";                // Import logo from assets
+import Logo from "../assets/logo.png";
 import "../styles/vibe.css";
 
 // Fonts available
-const fonts = ["Inter","Playfair Display","Poppins","Montserrat","Cursive","Serif"];
+const fonts = ["Inter", "Playfair Display", "Poppins", "Montserrat", "Cursive", "Serif"];
 
 const Vibe = () => {
   const [user, setUser] = useState(null);
@@ -18,12 +18,15 @@ const Vibe = () => {
   const [search, setSearch] = useState("");
   const [publicVibes, setPublicVibes] = useState([]);
 
-  // Load user & vibes
+  // Load user
   useEffect(() => {
     AuthService.getCurrentUser().then(setUser);
     loadMyVibes();
+    const interval = setInterval(loadMyVibes, 5000); // auto refresh
+    return () => clearInterval(interval);
   }, []);
 
+  // Load user's vibes
   const loadMyVibes = async () => {
     try {
       const data = await VibeService.getUserVibes();
@@ -33,7 +36,9 @@ const Vibe = () => {
     }
   };
 
-  const searchPublicVibes = async () => {
+  // Search public vibes
+  const searchPublicVibes = async (e) => {
+    if (e.key !== "Enter") return;
     if (!search.trim()) return;
     try {
       const data = await VibeService.searchPublicVibes(search);
@@ -43,6 +48,7 @@ const Vibe = () => {
     }
   };
 
+  // Create vibe
   const createVibe = async () => {
     if (!vibeText.trim()) return;
     try {
@@ -55,19 +61,22 @@ const Vibe = () => {
     }
   };
 
+  // Like a vibe (dummy functionality, integrate API later)
+  const likeVibe = (id) => {
+    setMyVibes((prev) =>
+      prev.map((v) => (v.id === id ? { ...v, likes: (v.likes || 0) + 1 } : v))
+    );
+    setPublicVibes((prev) =>
+      prev.map((v) => (v.id === id ? { ...v, likes: (v.likes || 0) + 1 } : v))
+    );
+  };
+
   return (
-    <div
-      className="vibe-page"
-      style={{
-        backgroundImage: `url(/manifix/backgrounds/purple-vibe.jpg)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="vibe-page">
       <header className="vibe-header">
         <img src={Logo} alt="ManifiX Logo" className="vibe-logo" />
         <h1>✨ Your Vibe</h1>
-        <p className="subtitle">Express your energy, thoughts, or manifestation 🌙</p>
+        <p className="subtitle">Share your energy 🌙</p>
       </header>
 
       {/* CREATE VIBE */}
@@ -94,7 +103,7 @@ const Vibe = () => {
 
         <input
           type="text"
-          placeholder="🎵 Add a song URL (Spotify/MP3)"
+          placeholder="🎵 Add a song URL"
           value={music}
           onChange={(e) => setMusic(e.target.value)}
         />
@@ -107,20 +116,15 @@ const Vibe = () => {
       {/* MY VIBES */}
       <section className="vibe-section">
         <h2>My Vibes</h2>
-        {myVibes.length === 0 && <p>No vibes yet.</p>}
-        <div className="vibe-list">
+        <div className="vibe-bubbles">
+          {myVibes.length === 0 && <p>No vibes yet.</p>}
           {myVibes.map((v) => (
-            <div key={v.id} className="vibe-card" style={{ fontFamily: v.font }}>
+            <div key={v.id} className="vibe-bubble" style={{ fontFamily: v.font }}>
               <p>{v.text}</p>
-              {v.music && (
-                <audio controls src={v.music}>
-                  Your browser does not support audio
-                </audio>
-              )}
-              <span className="privacy">{v.privacy}</span>
-              <div className="vibe-icons">
-                <img src={SvgIcons.like} alt="Like" />
-                <img src={SvgIcons.share} alt="Share" />
+              {v.music && <audio controls src={v.music} />}
+              <div className="vibe-footer">
+                <span className="privacy">{v.privacy}</span>
+                <button className="like-btn" onClick={() => likeVibe(v.id)}>❤️ {v.likes || 0}</button>
               </div>
             </div>
           ))}
@@ -132,25 +136,20 @@ const Vibe = () => {
         <h2>Public Vibes</h2>
         <input
           type="text"
-          placeholder="Search by name or email"
+          placeholder="Search by name or email and press Enter"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyUp={searchPublicVibes}
         />
-        {publicVibes.length === 0 && <p>No public vibes found.</p>}
-        <div className="vibe-list">
+        <div className="vibe-bubbles">
+          {publicVibes.length === 0 && <p>No public vibes found.</p>}
           {publicVibes.map((v) => (
-            <div key={v.id} className="vibe-card public" style={{ fontFamily: v.font }}>
+            <div key={v.id} className="vibe-bubble public" style={{ fontFamily: v.font }}>
               <p>{v.text}</p>
-              {v.music && (
-                <audio controls src={v.music}>
-                  Your browser does not support audio
-                </audio>
-              )}
-              <span className="author">{v.user_name}</span>
-              <div className="vibe-icons">
-                <img src={SvgIcons.like} alt="Like" />
-                <img src={SvgIcons.share} alt="Share" />
+              {v.music && <audio controls src={v.music} />}
+              <div className="vibe-footer">
+                <span className="author">{v.user_name}</span>
+                <button className="like-btn" onClick={() => likeVibe(v.id)}>❤️ {v.likes || 0}</button>
               </div>
             </div>
           ))}
