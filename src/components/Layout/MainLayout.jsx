@@ -6,80 +6,74 @@ import "../../styles/App.css";
 
 export default function MainLayout() {
   const [showMagic, setShowMagic] = useState(false);
-  const [showVibe, setShowVibe] = useState(true);
-
-  const streak = 7;
-  const energy = 82;
 
   return (
-    <div className="app-container">
-      {/* ================= TOP BAR ================= */}
-      <header className="top-bar">
-        <div className="logo-section">
-          <img src={logo} alt="ManifiX Logo" className="logo-img" />
-          <span className="logo-text">ManifiX</span>
-        </div>
+    <div className="layout-container">
 
-        <div className="stats">
-          <div className="stat-item">
-            <img src={Icons.starFilled} alt="Streak" />
-            <span>{streak}-Day Streak</span>
-          </div>
-
-          <div className="stat-item">
-            <img src={Icons.target} alt="Energy" />
-            <span>{energy}% Energy</span>
-          </div>
-        </div>
+      {/* ================= TOP HEADER ================= */}
+      <header className="main-header">
+        <img src={logo} alt="ManifiX Logo" className="header-logo" />
+        <h1 className="header-title">ManifiX</h1>
       </header>
 
-      {/* ================= PAGE CONTENT ================= */}
-      <main className="chat-area">
-        <Outlet />
-      </main>
+      {/* ================= BODY SECTION ================= */}
+      <div className="main-body">
 
-      {/* ================= FLOATING MAGIC BUTTON ================= */}
+        {/* LEFT SIDEBAR */}
+        <aside className="left-sidebar">
+          <button className="side-btn">
+            <img src={Icons.profile} alt="Profile" />
+            <span>Profile</span>
+          </button>
+
+          <button className="side-btn">
+            <img src={Icons.feed} alt="Vibe" />
+            <span>Vibe</span>
+          </button>
+        </aside>
+
+        {/* CENTER CONTENT */}
+        <main className="center-content">
+          <div className="star-container">
+            <img src={Icons.starFilled} alt="Star" className="center-star" />
+          </div>
+
+          <Outlet />
+
+          {/* CHAT INPUT BAR */}
+          <div className="chat-bar">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              className="chat-input"
+            />
+            <button className="send-btn">
+              <img src={Icons.send} alt="Send" />
+            </button>
+          </div>
+        </main>
+      </div>
+
+      {/* ================= MAGIC16 BUTTON ================= */}
       <button
-        className="magic-button"
+        className="magic16-btn"
         onClick={() => setShowMagic(true)}
       >
         <img src={Icons.magic16} alt="Magic16" />
-        Start Magic16
+        Magic16
       </button>
 
       {/* ================= MAGIC MODAL ================= */}
       {showMagic && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal-overlay">
+          <div className="modal-box">
             <h2>Magic16 Ritual</h2>
             <p>8 Minutes Yoga + 8 Minutes Meditation</p>
-
-            <button
-              className="close-btn"
-              onClick={() => setShowMagic(false)}
-            >
-              Close
-            </button>
+            <button onClick={() => setShowMagic(false)}>Close</button>
           </div>
         </div>
       )}
 
-      {/* ================= VIBE PANEL ================= */}
-      <div className={`vibe-panel ${showVibe ? "open" : "closed"}`}>
-        <div
-          className="vibe-toggle"
-          onClick={() => setShowVibe(!showVibe)}
-        >
-          {showVibe ? "▼ Hide Vibe" : "▲ Show Vibe"}
-        </div>
-
-        {showVibe && (
-          <div className="vibe-content">
-            <p>🌟 Your Energy Today: {energy}%</p>
-            <p>🔥 Current Streak: {streak} Days</p>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
