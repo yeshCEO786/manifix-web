@@ -72,7 +72,7 @@ const Settings = () => {
         <h2 className="neon-text">ManifiX Features</h2>
         <ul className="features-list">
           <li>💬 GPT Conversations</li>
-          </li>🎤 STT & TTS Integration</li>
+          <li>🎤 STT & TTS Integration</li>
           <li>🌀 Magic16 Rituals</li>
           <li>🌙 Vibe Sharing & Manifestation</li>
           <li>🎵 Music & Meditation</li>
