@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Icons } from "../../assets/icons";
-import logo from "../assets/logo.png";
-import "../styles/App.css";
+import Icons from "../../assets/icons";
+import logo from "../../assets/logo.png";
+import "../../styles/App.css";
 
 export default function MainLayout() {
   const [showMagic, setShowMagic] = useState(false);
@@ -13,8 +13,7 @@ export default function MainLayout() {
 
   return (
     <div className="app-container">
-
-      {/* TopBar */}
+      {/* ================= TOP BAR ================= */}
       <header className="top-bar">
         <div className="logo-section">
           <img src={logo} alt="ManifiX Logo" className="logo-img" />
@@ -29,17 +28,17 @@ export default function MainLayout() {
 
           <div className="stat-item">
             <img src={Icons.target} alt="Energy" />
-            <span>{energy}%</span>
+            <span>{energy}% Energy</span>
           </div>
         </div>
       </header>
 
-      {/* Page Content */}
+      {/* ================= PAGE CONTENT ================= */}
       <main className="chat-area">
         <Outlet />
       </main>
 
-      {/* Floating Button */}
+      {/* ================= FLOATING MAGIC BUTTON ================= */}
       <button
         className="magic-button"
         onClick={() => setShowMagic(true)}
@@ -48,11 +47,13 @@ export default function MainLayout() {
         Start Magic16
       </button>
 
-      {/* Magic Modal */}
+      {/* ================= MAGIC MODAL ================= */}
       {showMagic && (
         <div className="modal">
           <div className="modal-content">
             <h2>Magic16 Ritual</h2>
+            <p>8 Minutes Yoga + 8 Minutes Meditation</p>
+
             <button
               className="close-btn"
               onClick={() => setShowMagic(false)}
@@ -63,7 +64,7 @@ export default function MainLayout() {
         </div>
       )}
 
-      {/* Vibe Panel */}
+      {/* ================= VIBE PANEL ================= */}
       <div className={`vibe-panel ${showVibe ? "open" : "closed"}`}>
         <div
           className="vibe-toggle"
@@ -71,8 +72,14 @@ export default function MainLayout() {
         >
           {showVibe ? "▼ Hide Vibe" : "▲ Show Vibe"}
         </div>
-      </div>
 
+        {showVibe && (
+          <div className="vibe-content">
+            <p>🌟 Your Energy Today: {energy}%</p>
+            <p>🔥 Current Streak: {streak} Days</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
