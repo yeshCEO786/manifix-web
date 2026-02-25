@@ -13,12 +13,16 @@ const Vibe = () => {
   const [vibeText, setVibeText] = useState("");
   const [privacy, setPrivacy] = useState("private");
   const [font, setFont] = useState("Inter");
+
   const [music, setMusic] = useState("");
+  const [songQuery, setSongQuery] = useState("");
+  const [songResults, setSongResults] = useState([]);
+
   const [myVibes, setMyVibes] = useState([]);
   const [search, setSearch] = useState("");
   const [publicVibes, setPublicVibes] = useState([]);
 
-  // Load user
+  // Load user & vibes
   useEffect(() => {
     AuthService.getCurrentUser().then(setUser);
     loadMyVibes();
@@ -55,13 +59,15 @@ const Vibe = () => {
       await VibeService.createVibe({ text: vibeText, privacy, font, music });
       setVibeText("");
       setMusic("");
+      setSongQuery("");
+      setSongResults([]);
       loadMyVibes();
     } catch (err) {
       console.error("Failed to create vibe", err);
     }
   };
 
-  // Like a vibe (dummy functionality, integrate API later)
+  // Like a vibe
   const likeVibe = (id) => {
     setMyVibes((prev) =>
       prev.map((v) => (v.id === id ? { ...v, likes: (v.likes || 0) + 1 } : v))
@@ -69,6 +75,26 @@ const Vibe = () => {
     setPublicVibes((prev) =>
       prev.map((v) => (v.id === id ? { ...v, likes: (v.likes || 0) + 1 } : v))
     );
+  };
+
+  // Search songs (Spotify / music API)
+  const searchSongs = async (query) => {
+    if (!query.trim()) {
+      setSongResults([]);
+      return;
+    }
+    try {
+      const data = await VibeService.searchSongs(query); // Backend calls Spotify API
+      setSongResults(data || []);
+    } catch (err) {
+      console.error("Failed to search songs", err);
+    }
+  };
+
+  const selectSong = (song) => {
+    setMusic(song.preview_url); // Spotify preview or MP3 URL
+    setSongQuery(`${song.name} - ${song.artist}`);
+    setSongResults([]);
   };
 
   return (
@@ -101,12 +127,27 @@ const Vibe = () => {
           </select>
         </div>
 
-        <input
-          type="text"
-          placeholder="🎵 Add a song URL"
-          value={music}
-          onChange={(e) => setMusic(e.target.value)}
-        />
+        {/* SONG SEARCH */}
+        <div className="song-search">
+          <input
+            type="text"
+            placeholder="🎵 Search songs..."
+            value={songQuery}
+            onChange={(e) => {
+              setSongQuery(e.target.value);
+              searchSongs(e.target.value);
+            }}
+          />
+          {songResults.length > 0 && (
+            <ul className="song-dropdown">
+              {songResults.map((s) => (
+                <li key={s.id} onClick={() => selectSong(s)}>
+                  {s.name} - {s.artist}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <button className="btn" onClick={createVibe}>
           Share Vibe ✨
