@@ -9,6 +9,7 @@ import Login from "./Login";
 import NotFound from "./NotFound";
 
 // Main App Pages
+import Landing from "./Landing",
 import Dashboard from "./Dashboard";
 import Gpt from "./Gpt";
 import Magic16 from "./Magic16";
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/billing" element={<Billing />} />
+           <Route path="/landing" element={<Landing />} />
         </Route>
 
         {/* ================= ADMIN ROUTE ================= */}
