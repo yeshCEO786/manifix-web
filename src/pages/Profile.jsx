@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../services/supabase.js";
 import VibeService from "../services/vibe.service.js";
 import "../styles/profile.css";
-import SvgIcons from "../assets/icons"; // like, share icons
+import {Icons} from "../assets/icons"; // like, share icons
 
 export default function Profile() {
   const navigate = useNavigate();
