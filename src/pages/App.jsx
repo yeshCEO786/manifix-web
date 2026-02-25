@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
+import MainLayout from "../components/Layout/MainLayout";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Landing from "./pages/Landing";
