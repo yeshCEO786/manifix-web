@@ -3,7 +3,7 @@ import Gpt from "./Gpt";
 import Magic16 from "./Magic16";
 import Vibe from "./Vibe";
 
-import Icons  from "../assets/icons";
+import {Icons} from "../assets/icons";
 import logo from "../assets/logo.png";
 
 import "../styles/App.css"; // make sure this exists
