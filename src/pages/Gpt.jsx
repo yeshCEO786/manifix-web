@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "../styles/Gpt.css";
 import Icons from "../assets/Icons";
 import backgroundPurple from "../assets/backgrounds/purple-vibe.jpg";
-import backgroundBlue from "../assets/backgrounds/blue-vibe.jpg";
 
 // Toast Component
 const Toast = ({ message, onClose }) => (
@@ -27,14 +28,13 @@ export default function Gpt() {
   const [listening, setListening] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState("");
-  const [theme, setTheme] = useState("purple");
   const chatContainer = useRef(null);
   const recognitionRef = useRef(null);
+  const ttsRef = useRef(null);
 
   // -------------------- Speech Recognition --------------------
   useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const rec = new SpeechRecognition();
       rec.lang = "en-IN";
@@ -70,6 +70,11 @@ export default function Gpt() {
     utterance.rate = 1;
     utterance.pitch = 1;
     window.speechSynthesis.speak(utterance);
+    ttsRef.current = utterance;
+  };
+
+  const stopSpeaking = () => {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
   };
 
   // -------------------- Toast --------------------
@@ -88,29 +93,30 @@ export default function Gpt() {
   // -------------------- Send Message --------------------
   const sendMessage = async (msg, isFile = false) => {
     if (!msg) return;
+    stopSpeaking();
 
     const userMsg = { content: msg, role: "user", timestamp: Date.now(), type: isFile ? "file" : "text" };
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages(prev => [...prev, userMsg]);
     setInput("");
 
     const thinkingMsg = { content: "ManifiX is thinking...", role: "bot", type: "thinking", timestamp: Date.now() };
-    setMessages((prev) => [...prev, thinkingMsg]);
+    setMessages(prev => [...prev, thinkingMsg]);
 
     try {
       const response = await axios.post(`${API_BASE}/api/chat`, { message: msg }, { timeout: 15000 });
       const replyText = response.data.reply || "I’m here with you 🤍";
 
-      setMessages((prev) => prev.filter((m) => m.timestamp !== thinkingMsg.timestamp));
+      setMessages(prev => prev.filter(m => m.timestamp !== thinkingMsg.timestamp));
 
-      // Typing effect
+      // Typing animation
       let idx = 0;
       const replyMsg = { content: "", role: "bot", timestamp: Date.now(), type: "text" };
-      setMessages((prev) => [...prev, replyMsg]);
+      setMessages(prev => [...prev, replyMsg]);
 
       const interval = setInterval(() => {
         if (idx < replyText.length) {
           replyMsg.content += replyText[idx];
-          setMessages((prev) => [...prev.filter((m) => m.timestamp !== replyMsg.timestamp), replyMsg]);
+          setMessages(prev => [...prev.filter(m => m.timestamp !== replyMsg.timestamp), replyMsg]);
           idx++;
         } else {
           clearInterval(interval);
@@ -118,9 +124,9 @@ export default function Gpt() {
         }
       }, 25);
     } catch {
-      setMessages((prev) => prev.filter((m) => m.timestamp !== thinkingMsg.timestamp));
+      setMessages(prev => prev.filter(m => m.timestamp !== thinkingMsg.timestamp));
       const errorMsg = "❌ Backend not reachable. Try again.";
-      setMessages((prev) => [...prev, { content: errorMsg, role: "bot", type: "text", timestamp: Date.now() }]);
+      setMessages(prev => [...prev, { content: errorMsg, role: "bot", type: "text", timestamp: Date.now() }]);
       showToast(errorMsg);
       if (voiceEnabled) speak(errorMsg);
     }
@@ -155,23 +161,27 @@ export default function Gpt() {
     }
   };
 
+  // -------------------- Markdown Renderer --------------------
+  const renderers = {
+    code({ language, value }) {
+      return <SyntaxHighlighter style={oneDark} language={language} children={value} />;
+    }
+  };
+
   return (
     <div
-      className={`gpt-app theme-${theme}`}
-      style={{ backgroundImage: `url(${theme === "purple" ? backgroundPurple : backgroundBlue})`, backgroundSize: "cover" }}
+      className="gpt-app theme-purple"
+      style={{ backgroundImage: `url(${backgroundPurple})`, backgroundSize: "cover" }}
     >
       {toast && <Toast message={toast} onClose={() => setToast("")} />}
 
       <header className="gpt-header">
         <img src={Icons.chat} alt="ManifiX Logo" className="gpt-logo" />
         <h1>ManifiX</h1>
-        <button className="theme-toggle" onClick={() => setTheme(theme === "purple" ? "blue" : "purple")} aria-label="Toggle Theme">
-          {theme === "purple" ? "💙 Blue" : "💜 Purple"}
-        </button>
       </header>
 
       <main className="gpt-main" ref={chatContainer}>
-        {messages.map((msg) => (
+        {messages.map(msg => (
           <div key={msg.timestamp} className={`message-row ${msg.role}`}>
             <div className="message-bubble fade-in">
               {msg.isFile ? (
@@ -180,21 +190,28 @@ export default function Gpt() {
                 </a>
               ) : msg.type === "thinking" ? (
                 <div role="status" aria-live="polite" className="typing-indicator">
-                  {msg.content}
-                  <span className="dots">...</span>
+                  {msg.content}<span className="dots">...</span>
                 </div>
               ) : (
-                <>
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  {msg.role === "bot" &&
-                    [...Array(5)].map((_, i) => (
-                      <span
-                        key={i}
-                        className="twinkle-star"
-                        style={{ top: `${Math.random() * 80}%`, left: `${Math.random() * 80}%`, animationDelay: `${Math.random()}s` }}
-                      />
-                    ))}
-                </>
+                <ReactMarkdown
+                  children={msg.content}
+                  components={{
+                    code({node, inline, className, children, ...props}) {
+                      const match = /language-(\w+)/.exec(className || '');
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={oneDark}
+                          language={match[1]}
+                          PreTag="div"
+                          children={String(children).replace(/\n$/, '')}
+                          {...props}
+                        />
+                      ) : (
+                        <code className={className} {...props}>{children}</code>
+                      );
+                    }
+                  }}
+                />
               )}
             </div>
           </div>
@@ -210,7 +227,7 @@ export default function Gpt() {
           rows={1}
           style={{ resize: "none", overflowY: "hidden" }}
           value={input}
-          onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
+          onChange={e => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = `${e.target.scrollHeight}px`; }}
           onKeyDown={handleKeyDown}
           placeholder="Ask Your ManifiX Anything…"
           aria-label="Chat input"
