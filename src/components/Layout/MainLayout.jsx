@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { Icons } from "../assets/icons";
+import { Icons } from "../../assets/icons";
 import logo from "../assets/logo.png";
 import "../styles/App.css";
 
