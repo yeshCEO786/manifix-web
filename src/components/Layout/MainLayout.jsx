@@ -1,22 +1,26 @@
+// src/components/Layout/MainLayout.jsx
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Icons from "../../assets/icons";
 import logo from "../../assets/logo.png";
-import "../../styles/App.css";
+import "../../styles/MainLayout.css";
 
 export default function MainLayout() {
   const [showMagic, setShowMagic] = useState(false);
+  const [chatInput, setChatInput] = useState("");
 
   return (
     <div className="layout-container">
 
       {/* ================= TOP HEADER ================= */}
       <header className="main-header">
-        <img src={logo} alt="ManifiX Logo" className="header-logo" />
-        <h1 className="header-title">ManifiX</h1>
+        <div className="header-left">
+          <img src={logo} alt="ManifiX Logo" className="header-logo" />
+          <h1 className="header-title">ManifiX</h1>
+        </div>
       </header>
 
-      {/* ================= BODY SECTION ================= */}
+      {/* ================= BODY ================= */}
       <div className="main-body">
 
         {/* LEFT SIDEBAR */}
@@ -38,14 +42,17 @@ export default function MainLayout() {
             <img src={Icons.starFilled} alt="Star" className="center-star" />
           </div>
 
+          {/* Outlet for routing pages */}
           <Outlet />
 
-          {/* CHAT INPUT BAR */}
+          {/* CHAT BAR */}
           <div className="chat-bar">
             <input
               type="text"
               placeholder="Type your message..."
               className="chat-input"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
             />
             <button className="send-btn">
               <img src={Icons.send} alt="Send" />
@@ -63,13 +70,15 @@ export default function MainLayout() {
         Magic16
       </button>
 
-      {/* ================= MAGIC MODAL ================= */}
+      {/* ================= MAGIC16 MODAL ================= */}
       {showMagic && (
         <div className="modal-overlay">
           <div className="modal-box">
             <h2>Magic16 Ritual</h2>
             <p>8 Minutes Yoga + 8 Minutes Meditation</p>
-            <button onClick={() => setShowMagic(false)}>Close</button>
+            <button className="close-btn" onClick={() => setShowMagic(false)}>
+              Close
+            </button>
           </div>
         </div>
       )}
