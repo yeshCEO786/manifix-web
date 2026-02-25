@@ -152,8 +152,8 @@ export default function Profile() {
                 )}
                 <span>{v.privacy}</span>
                 <div className="card-icons">
-                  <img src={SvgIcons.like} alt="Like" />
-                  <img src={SvgIcons.share} alt="Share" />
+                  <img src={Icons.like} alt="Like" />
+                  <img src={Icons.share} alt="Share" />
                 </div>
               </div>
             ))}
