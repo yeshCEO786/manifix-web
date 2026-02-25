@@ -111,7 +111,7 @@ export default function Gpt() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post(`${API_BASE}/upload`, formData, {
+      const res = await axios.post(`${API_BASE}/api/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const fileUrl = res.data.url;
