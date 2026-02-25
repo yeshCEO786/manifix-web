@@ -15,30 +15,25 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleEmailAuth = async (mode) => {
+  const handleEmailLogin = async () => {
     setError("");
     setLoading(true);
-
     try {
-      const user =
-        mode === "login"
-          ? await authService.login(email.trim(), password)
-          : await authService.signUp(email.trim(), password);
-
-      if (user) navigate("/app", { replace: true }); // ✅ fixed
+      const user = await authService.login(email.trim(), password);
+      if (user) navigate("/app", { replace: true });
     } catch (err) {
-      setError(err?.message || "Authentication failed");
+      setError(err?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleAuth = async () => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await authService.googleLogin();
-      navigate("/app", { replace: true }); // ✅ fixed
-    } catch (err) {
+      await authService.loginWithGoogle();
+      // Google OAuth redirect handles navigation automatically
+    } catch {
       setError("Google sign-in failed");
     } finally {
       setLoading(false);
@@ -46,46 +41,27 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="login-wrapper"
-      style={{ backgroundImage: `url(${bgImage})` }}
-    >
+    <div className="auth-wrapper" style={{ backgroundImage: `url(${bgImage})` }}>
       <div className="overlay" />
-
-      <div className="login-card">
-
-        {/* BRAND */}
+      <div className="auth-card">
         <div className="brand">
           <img src={logo} alt="ManifiX Logo" />
           <h1>ManifiX</h1>
-          <p className="tagline">
-            Intelligence meets Intention
-          </p>
+          <p className="tagline">Intelligence meets Intention</p>
         </div>
 
-        {/* HEADER */}
-        <h2>Welcome Back to Your Ritual</h2>
-        <p className="subtitle">
-          Continue your daily alignment journey
-        </p>
+        <h2>Welcome Back</h2>
+        <p className="subtitle">Continue your daily alignment journey</p>
 
-        {/* GOOGLE */}
-        <button
-          className="google-btn"
-          onClick={handleGoogleAuth}
-          disabled={loading}
-        >
+        <button className="google-btn" onClick={handleGoogleLogin} disabled={loading}>
           Continue with Google
         </button>
 
-        <div className="divider">
-          <span>or continue with email</span>
-        </div>
+        <div className="divider"><span>or continue with email</span></div>
 
-        {/* INPUTS */}
         <input
           type="email"
-          placeholder="Email address"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
@@ -101,31 +77,17 @@ export default function Login() {
 
         {error && <p className="error">{error}</p>}
 
-        {/* ACTIONS */}
-        <button
-          className="primary-btn"
-          onClick={() => handleEmailAuth("login")}
-          disabled={loading}
-        >
+        <button className="primary-btn" onClick={handleEmailLogin} disabled={loading}>
           {loading ? "Processing..." : "Login"}
         </button>
 
-        <button
-          className="secondary-btn"
-          onClick={() => handleEmailAuth("signup")}
-          disabled={loading}
-        >
-          Create Account
-        </button>
+        <p className="microcopy">
+          Forgot password? <span className="link" onClick={() => navigate("/forgot-password")}>Reset here</span>
+        </p>
 
         <p className="microcopy">
-          Your streak grows when you show up.
+          Don’t have an account? <span className="link" onClick={() => navigate("/signup")}>Sign Up</span>
         </p>
-
-        <p className="footer">
-          By continuing, you agree to our Terms & Privacy Policy.
-        </p>
-
       </div>
     </div>
   );
