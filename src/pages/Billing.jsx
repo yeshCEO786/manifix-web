@@ -18,7 +18,10 @@ const BillingPage = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ priceId }),
+        body: JSON.stringify({
+  priceId,
+  userId: user.id // get logged-in user id
+}),
         }
       );
       const data = await res.json();
