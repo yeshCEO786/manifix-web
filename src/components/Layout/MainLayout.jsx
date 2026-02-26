@@ -1,7 +1,7 @@
 // src/components/Layout/MainLayout.jsx
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import Icons from "../../assets/icons";
+import icons from "../../assets/icons";
 import "../../styles/MainLayout.css";
 
 export default function MainLayout() {
