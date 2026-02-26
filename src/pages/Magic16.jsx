@@ -44,19 +44,18 @@ export default function Magic16() {
   const audioRef = useRef(null);
   const lastVoiceRef = useRef(0);
 
+// ---------------- STATE ----------------
   const [stepIndex, setStepIndex] = useState(0);
   const [stepTime, setStepTime] = useState(60);
-const TOTAL_DURATION = steps.reduce(
-  (sum, step) => sum + step.duration,
-  0
-);
+  const [totalTime, setTotalTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [scoreSamples, setScoreSamples] = useState([]);
   const [liveScore, setLiveScore] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [cameraError, setCameraError] = useState(false);
-const [loading, setLoading] = useState(true);
-const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+
 
   const steps = [
     { img: yoga1, text: "Mountain Pose. Stand tall.", duration: 60 },
