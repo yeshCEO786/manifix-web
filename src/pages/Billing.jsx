@@ -6,7 +6,7 @@ const BillingPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const priceId = "price_1999_monthly"; // Replace with your Stripe price ID
+  const priceId = "price_1QABCxyz123456";// Replace with your Stripe price ID
 
   const handleSubscribe = async () => {
     setLoading(true);
