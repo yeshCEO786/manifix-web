@@ -1,27 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import authService from "../services/auth.service";
-import  supabase  from "../services/supabase"; // make sure this exists
+import supabase from "../services/supabase";
 
-const AppContext = createContext();
+const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
-  // =========================================
   // 🔐 AUTH STATE
-  // =========================================
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // =========================================
-  // 🔥 RITUAL STATE (FROM DATABASE)
-  // =========================================
+  // 🔥 RITUAL STATE
   const [streak, setStreak] = useState(0);
   const [lastCompletedDate, setLastCompletedDate] = useState(null);
   const [energy, setEnergy] = useState(50);
   const [vibeScore, setVibeScore] = useState(5);
 
-  // =========================================
   // 🔄 AUTH HYDRATION
-  // =========================================
   useEffect(() => {
     let unsubscribe;
 
@@ -42,9 +36,7 @@ export const AppProvider = ({ children }) => {
     };
   }, []);
 
-  // =========================================
-  // 📥 LOAD PROFILE FROM DATABASE
-  // =========================================
+  // 📥 LOAD PROFILE
   useEffect(() => {
     if (!user) return;
 
@@ -66,14 +58,11 @@ export const AppProvider = ({ children }) => {
     loadProfile();
   }, [user]);
 
-  // =========================================
-  // 🔥 COMPLETE RITUAL (DATABASE VERSION)
-  // =========================================
+  // 🔥 COMPLETE RITUAL
   const completeRitual = async () => {
     if (!user) return;
 
     const today = new Date().toISOString().split("T")[0];
-
     if (lastCompletedDate === today) return;
 
     let newStreak = 1;
@@ -104,9 +93,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // =========================================
-  // 🧹 RESET RITUAL
-  // =========================================
+  // 🧹 RESET
   const resetRitual = async () => {
     if (!user) return;
 
@@ -126,9 +113,7 @@ export const AppProvider = ({ children }) => {
     setVibeScore(5);
   };
 
-  // =========================================
   // 🚪 LOGOUT
-  // =========================================
   const logout = async () => {
     await authService.signOut();
     setUser(null);
@@ -153,4 +138,10 @@ export const AppProvider = ({ children }) => {
   );
 };
 
-export const useApp = () => useContext(AppContext);
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useApp must be used inside AppProvider");
+  }
+  return context;
+};
