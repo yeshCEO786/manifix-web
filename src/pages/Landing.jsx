@@ -29,9 +29,9 @@ export default function Landing() {
       {/* HERO / FEATURE HIGHLIGHTS */}
       <div className="landing-hero">
         <h2 className="hero-title">
-          🌟 16-Minute Daily Ritual <br />
-          🤖 AI Reflection Engine <br />
-          ✨ Personal Vibe Tracking
+           🌟16-Minute Daily Ritual <br />
+          ✨ AI Reflection Engine <br />
+          ⭐ Personal Vibe Tracking
         </h2>
 
         <p className="hero-description">
