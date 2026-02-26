@@ -5,7 +5,6 @@ export { default as EyeOffIcon } from "./eye-off.png";
 export { default as FeedIcon } from "./feed_icon.png";
 export { default as HomeIcon } from "./home_icon.png";
 export { default as Magic16Icon } from "./magic16.png";
-export { default as MicrosoftIcon } from "./microsoft.png";
 export { default as ProfileIcon } from "./profile_icon.png";
 export { default as SendIcon } from "./send.png";
 export { default as SettingIcon } from "./setting_icon.png";
