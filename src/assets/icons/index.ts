@@ -4,7 +4,7 @@
 ============================ */
 
 /* ========= SVG Icons ========= */
-import dashboard from "./dashboard.svg";
+
 import gpt from "./gpt.svg";
 
 /* ========= Core PNG Icons ========= */
