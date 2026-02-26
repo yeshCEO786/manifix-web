@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
-import  supabase  from "../services/supabase";
+import supabase from "../services/supabase";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,11 +14,9 @@ const Dashboard = () => {
   }, [user, loading, navigate]);
 
   if (loading) return <div>Loading...</div>;
-
   if (!user) return null;
 
-  // Email verification check
-  if (!user.email_confirmed_at) {
+  if (!user?.email_confirmed_at) {
     return (
       <div style={{ padding: 30 }}>
         <h2>Please verify your email</h2>
