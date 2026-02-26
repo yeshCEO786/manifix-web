@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import supabase  from "../service/supabase";
+import supabase  from "../services/supabase";
 import { useApp } from "../context/AppContext";
 
 const Admin = () => {
