@@ -1,9 +1,7 @@
-// src/AppRouter.jsx
-
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-// Pages
+// Pages (ALL inside src/pages)
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import AppLayout from "./pages/App"; // layout wrapper
@@ -16,75 +14,62 @@ import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 
-// Context
-import { AppProvider } from "./context/AppContext";
-
-/* ----------------------------
-   Protected Route
----------------------------- */
+/* Protected Route */
 const ProtectedRoute = ({ user, children }) => {
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
   return children;
 };
 
-/* ----------------------------
-   Public Route
----------------------------- */
+/* Public Route */
 const PublicRoute = ({ user, children }) => {
-  if (user) {
-    return <Navigate to="/app/dashboard" replace />;
-  }
+  if (user) return <Navigate to="/app/dashboard" replace />;
   return children;
 };
 
 export default function AppRouter({ user }) {
   return (
-    <AppProvider>
-      <Routes>
+    <Routes>
 
-        {/* Landing (auto redirect if logged in) */}
-        <Route
-          path="/"
-          element={
-            user ? <Navigate to="/app/dashboard" replace /> : <Landing />
-          }
-        />
+      {/* Landing */}
+      <Route
+        path="/"
+        element={
+          user ? <Navigate to="/app/dashboard" replace /> : <Landing />
+        }
+      />
 
-        {/* Login */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute user={user}>
-              <Login />
-            </PublicRoute>
-          }
-        />
+      {/* Login */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute user={user}>
+            <Login />
+          </PublicRoute>
+        }
+      />
 
-        {/* Protected App Layout */}
-        <Route
-          path="/app"
-          element={
-            <ProtectedRoute user={user}>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="gpt" element={<Gpt />} />
-          <Route path="magic16" element={<Magic16 />} />
-          <Route path="vibe" element={<Vibe />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="billing" element={<Billing />} />
-        </Route>
+      {/* Protected App Layout */}
+      <Route
+        path="/app"
+        element={
+          <ProtectedRoute user={user}>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="gpt" element={<Gpt />} />
+        <Route path="magic16" element={<Magic16 />} />
+        <Route path="vibe" element={<Vibe />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="billing" element={<Billing />} />
+      </Route>
 
-        {/* Catch All */}
-        <Route path="*" element={<NotFound />} />
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
 
-      </Routes>
-    </AppProvider>
+    </Routes>
   );
 }
