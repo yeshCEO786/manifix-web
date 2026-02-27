@@ -19,21 +19,23 @@ function App() {
   useEffect(() => {
     let mounted = true;
 
-    const initializeAuth = async () => {
-      const { data } = await supabase.auth.getSession();
+    // Get initial session
+    const getSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
 
-      if (mounted) {
-        setSession(data.session);
+      if (!error && mounted) {
+        setSession(data?.session ?? null);
         setLoading(false);
       }
     };
 
-    initializeAuth();
+    getSession();
 
+    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
     });
 
     return () => {
@@ -46,7 +48,7 @@ function App() {
 
   return (
     <Routes>
-      {/* ---------------- PUBLIC ROUTES ---------------- */}
+      {/* ================= PUBLIC ROUTES ================= */}
 
       <Route
         path="/"
@@ -62,7 +64,7 @@ function App() {
         }
       />
 
-      {/* ---------------- PROTECTED ROUTES ---------------- */}
+      {/* ================= PROTECTED ROUTES ================= */}
 
       <Route
         path="/dashboard"
@@ -100,14 +102,14 @@ function App() {
         }
       />
 
-      {/* ---------------- 404 ---------------- */}
+      {/* ================= 404 ================= */}
 
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
 
-/* ---------------- LOADING SCREEN ---------------- */
+/* ================= LOADING SCREEN ================= */
 
 function LoadingScreen() {
   return (
