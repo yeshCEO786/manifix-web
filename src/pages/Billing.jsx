@@ -1,32 +1,45 @@
 // src/pages/Billing.jsx
+
 import React, { useState } from "react";
-import "../styles/Billing666.css"; // create this file for styling
+import "../styles/Billing666.css";
+import authService from "../services/auth.service";
+import logo from "../assets/logo.png";
 
 const BillingPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const priceId = "price_1QABCxyz123456";// Replace with your Stripe price ID
+  const priceId = "price_1QABCxyz123456"; // your real Stripe price ID
 
   const handleSubscribe = async () => {
     setLoading(true);
     setError("");
 
     try {
+      const currentUser = authService?.getCurrentUser?.();
+
+      if (!currentUser) {
+        setError("You must be logged in.");
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(
         "https://manifix.up.railway.app/api/create-checkout-session",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-  priceId,
-  userId: user.id // get logged-in user id
-}),
+          body: JSON.stringify({
+            priceId,
+            userId: currentUser.id,
+          }),
         }
       );
+
       const data = await res.json();
+
       if (data.url) {
-        window.location.href = data.url; // Redirect to Stripe Checkout
+        window.location.href = data.url;
       } else {
         setError("Unable to start payment. Try again.");
       }
@@ -39,21 +52,22 @@ const BillingPage = () => {
   };
 
   return (
-    <div className="billing-page" style={{ backgroundImage: "url(/manifix/backgrounds/purple-vibe.jpg)" }}>
+    <div className="billing-page">
       <header className="billing-header">
-        <img src={PngIcons.manifix} alt="ManifiX Logo" className="billing-logo" />
+        <img src={logo} alt="ManifiX Logo" className="billing-logo" />
         <h1>ManifiX Premium</h1>
-        <p>Unlock full access to ManifiX features</p>
+        <p>Unlock full access to all premium features</p>
       </header>
 
       <section className="billing-card">
         <h2>Premium Subscription</h2>
         <p className="price">₹1,999 / month</p>
+
         <ul className="features">
-          <li>🎯 Full access to GPT Chat</li>
-          <li>🎵 Magic16 & Vibe features unlocked</li>
-          <li>🔊 STT / TTS enabled like ChatGPT</li>
-          <li>⚡ Priority support & updates</li>
+          <li>🎯 Full GPT Access</li>
+          <li>🎵 Magic16 & Vibe unlocked</li>
+          <li>🔊 STT / TTS Enabled</li>
+          <li>⚡ Priority Support</li>
         </ul>
 
         <button
