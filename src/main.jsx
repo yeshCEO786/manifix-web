@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import AppRouter from "./AppRouter";
 import authService from "./services/auth.service";
 
@@ -50,8 +50,8 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <HashRouter>
+<BrowserRouter>
       <Root />
-    </HashRouter>
+</BrowserRouter>
   </React.StrictMode>
 );
