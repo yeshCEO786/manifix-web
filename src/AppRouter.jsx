@@ -1,75 +1,71 @@
+// src/pages/App.jsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Pages (ALL inside src/pages)
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import AppLayout from "./pages/App"; // layout wrapper
-import Dashboard from "./pages/Dashboard";
-import Gpt from "./pages/Gpt";
-import Magic16 from "./pages/Magic16";
-import Vibe from "./pages/Vibe";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import Billing from "./pages/Billing";
-import NotFound from "./pages/NotFound";
+import MainLayout from "../components/Layout/MainLayout";
+import ProtectedRoute from "../components/ProtectedRoute";
 
-/* Protected Route */
-const ProtectedRoute = ({ user, children }) => {
-  if (!user) return <Navigate to="/login" replace />;
-  return children;
-};
+// ================= PUBLIC PAGES =================
+import Login from "./Login";
+import Signup from "./Signup";
+import ForgotPassword from "./ForgotPassword";
+import NotFound from "./NotFound";
 
-/* Public Route */
-const PublicRoute = ({ user, children }) => {
-  if (user) return <Navigate to="/app/dashboard" replace />;
-  return children;
-};
+// ================= MAIN APP PAGES =================
+import Landing from "./Landing";
+import Dashboard from "./Dashboard";
+import Gpt from "./Gpt";
+import Magic16 from "./Magic16";
+import Vibe from "./Vibe";
+import Profile from "./Profile";
+import Settings from "./Settings";
+import Billing from "./Billing";
 
-export default function AppRouter({ user }) {
+// ================= ADMIN PAGE =================
+import Admin from "./Admin";
+
+export default function App() {
   return (
-    <Routes>
+    <Router>
+      <Routes>
 
-      {/* Landing */}
-      <Route
-        path="/"
-        element={
-          user ? <Navigate to="/app/dashboard" replace /> : <Landing />
-        }
-      />
+        {/* ================= PUBLIC ROUTES ================= */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Login */}
-      <Route
-        path="/login"
-        element={
-          <PublicRoute user={user}>
-            <Login />
-          </PublicRoute>
-        }
-      />
+        {/* ================= PROTECTED APP ROUTES ================= */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/gpt" element={<Gpt />} />
+          <Route path="/magic16" element={<Magic16 />} />
+          <Route path="/vibe" element={<Vibe />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/billing" element={<Billing />} />
+        </Route>
 
-      {/* Protected App Layout */}
-      <Route
-        path="/app"
-        element={
-          <ProtectedRoute user={user}>
-            <AppLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="gpt" element={<Gpt />} />
-        <Route path="magic16" element={<Magic16 />} />
-        <Route path="vibe" element={<Vibe />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="billing" element={<Billing />} />
-      </Route>
+        {/* ================= ADMIN ROUTE ================= */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* 404 */}
-      <Route path="*" element={<NotFound />} />
+        {/* ================= 404 ROUTE ================= */}
+        <Route path="*" element={<NotFound />} />
 
-    </Routes>
+      </Routes>
+    </Router>
   );
 }
