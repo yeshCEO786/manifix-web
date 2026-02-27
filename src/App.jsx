@@ -24,13 +24,7 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) {
-    return (
-      <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-        Loading ManifiX...
-      </div>
-    );
-  }
+  if (loading) return <div>Loading...</div>;
 
   return <AppRouter user={user} />;
 }
