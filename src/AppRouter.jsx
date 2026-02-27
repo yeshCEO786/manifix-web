@@ -34,7 +34,7 @@ const ProtectedRoute = ({ user, children }) => {
 ---------------------------- */
 const PublicRoute = ({ user, children }) => {
   if (user) {
-    return <Navigate to="/app/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   return children;
 };
