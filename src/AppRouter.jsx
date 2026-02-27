@@ -6,7 +6,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // Pages
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
-import App from "./pages/App";
+import AppLayout from "./pages/App"; // layout wrapper
 import Dashboard from "./pages/Dashboard";
 import Gpt from "./pages/Gpt";
 import Magic16 from "./pages/Magic16";
@@ -20,7 +20,7 @@ import NotFound from "./pages/NotFound";
 import { AppProvider } from "./context/AppContext";
 
 /* ----------------------------
-   Protected Route Wrapper
+   Protected Route
 ---------------------------- */
 const ProtectedRoute = ({ user, children }) => {
   if (!user) {
@@ -30,11 +30,11 @@ const ProtectedRoute = ({ user, children }) => {
 };
 
 /* ----------------------------
-   Public Route (prevent login if already logged in)
+   Public Route
 ---------------------------- */
 const PublicRoute = ({ user, children }) => {
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
   return children;
 };
@@ -44,10 +44,15 @@ export default function AppRouter({ user }) {
     <AppProvider>
       <Routes>
 
-        {/* ---------- PUBLIC ROUTES ---------- */}
+        {/* Landing (auto redirect if logged in) */}
+        <Route
+          path="/"
+          element={
+            user ? <Navigate to="/app/dashboard" replace /> : <Landing />
+          }
+        />
 
-        <Route path="/" element={<Landing />} />
-
+        {/* Login */}
         <Route
           path="/login"
           element={
@@ -57,18 +62,16 @@ export default function AppRouter({ user }) {
           }
         />
 
-        {/* ---------- PROTECTED APP ROUTES ---------- */}
-
+        {/* Protected App Layout */}
         <Route
           path="/app"
           element={
             <ProtectedRoute user={user}>
-              <App />
+              <AppLayout />
             </ProtectedRoute>
           }
         >
-          {/* Nested Routes inside App Layout */}
-          <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="gpt" element={<Gpt />} />
           <Route path="magic16" element={<Magic16 />} />
@@ -78,8 +81,7 @@ export default function AppRouter({ user }) {
           <Route path="billing" element={<Billing />} />
         </Route>
 
-        {/* ---------- 404 ---------- */}
-
+        {/* Catch All */}
         <Route path="*" element={<NotFound />} />
 
       </Routes>
