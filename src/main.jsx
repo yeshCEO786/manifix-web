@@ -9,18 +9,46 @@ function Root() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = authService?.getCurrentUser?.();
-    setUser(currentUser);
-    setLoading(false);
+    try {
+      // Safely get current user
+      const currentUser = authService?.getCurrentUser?.();
+      setUser(currentUser || null);
+    } catch (error) {
+      console.error("Auth initialization error:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Prevents flash while checking auth
-  if (loading) return null;
+  // Show visible fallback instead of blank page
+  if (loading) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "18px",
+          fontWeight: "500",
+        }}
+      >
+        Loading ManifiX...
+      </div>
+    );
+  }
 
   return <AppRouter user={user} />;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <HashRouter>
       <Root />
