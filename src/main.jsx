@@ -10,48 +10,24 @@ function Root() {
 
   useEffect(() => {
     try {
-      // Safely get current user
       const currentUser = authService?.getCurrentUser?.();
       setUser(currentUser || null);
     } catch (error) {
-      console.error("Auth initialization error:", error);
-      setUser(null);
+      console.error("Auth error:", error);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Show visible fallback instead of blank page
-  if (loading) {
-    return (
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "18px",
-          fontWeight: "500",
-        }}
-      >
-        Loading ManifiX...
-      </div>
-    );
-  }
+  if (loading) return <div>Loading...</div>;
 
   return <AppRouter user={user} />;
 }
 
-const rootElement = document.getElementById("root");
-
-if (!rootElement) {
-  throw new Error("Root element not found");
-}
-
-ReactDOM.createRoot(rootElement).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-<BrowserRouter>
+    <BrowserRouter>
       <Root />
-</BrowserRouter>
+    </BrowserRouter>
   </React.StrictMode>
 );
