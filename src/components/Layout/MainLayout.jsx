@@ -1,35 +1,8 @@
 // src/components/Layout/MainLayout.jsx
 import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
-import icons from "../../assets/icons";
-import "../../styles/MainLayout.css";
-
-export default function MainLayout() {
-  const [showMagic, setShowMagic] = useState(false);
-  const [chatInput, setChatInput] = useState("");
-
-  return (
-    <div className="layout-container">
-
-      <header className="main-header">
-        <div className="header-left">
-          <img src="/logo.png" alt="ManifiX Logo" className="header-logo" />
-          <h1 className="header-title">M// src/components/Layout/MainLayout.jsx
-import React, { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
 import "../../styles/MainLayout.css";
-
-// Optional components – make sure they exist
-import {
-  TopBar,
-  BottomNav,
-  ChatBox,
-  ChatInput,
-  Magic16Controls,
-  Magic16Timer,
-  Modal,
-} from "../index";
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -37,16 +10,14 @@ export default function MainLayout() {
   const { logout } = useApp();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatInput, setChatInput] = useState("");
-  const [magicOpen, setMagicOpen] = useState(false);
 
   const menuItems = [
-    { name: "Gpt", path: "/app/gpt", icon: "chat" },
-    { name: "Magic16", path: "/app/magic16", icon: "magic16" },
-    { name: "Profile", path: "/app/profile", icon: "profile" },
-    { name: "Settings", path: "/app/settings", icon: "settings" },
-    { name: "Billing", path: "/app/billing", icon: "billing" },
+    { name: "GPT", path: "/app/gpt" },
+    { name: "Magic16", path: "/app/magic16" },
+    { name: "Vibe", path: "/app/vibe" },
+    { name: "Profile", path: "/app/profile" },
+    { name: "Settings", path: "/app/settings" },
+    { name: "Billing", path: "/app/billing" },
   ];
 
   const handleLogout = async () => {
@@ -55,159 +26,76 @@ export default function MainLayout() {
   };
 
   return (
-    <div className="app-layout flex h-screen bg-gray-50">
+    <div className="app-layout" style={{ display: "flex", height: "100vh" }}>
+      
       {/* Sidebar */}
       <aside
-        className={`sidebar bg-white shadow-md flex flex-col transition-width duration-300 ${
-          sidebarCollapsed ? "w-20" : "w-60"
-        } hidden md:flex`}
+        style={{
+          width: sidebarCollapsed ? "80px" : "220px",
+          background: "#111827",
+          color: "white",
+          padding: "20px",
+          transition: "0.3s",
+        }}
       >
-        <div className="sidebar-header p-4 flex justify-between items-center">
-          {!sidebarCollapsed && <span className="text-xl font-bold">ManifiX</span>}
-          <button
-            className="text-gray-500 hover:text-gray-800"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          >
-            {sidebarCollapsed ? "→" : "←"}
-          </button>
-        </div>
+        <h2 style={{ marginBottom: "20px" }}>
+          {sidebarCollapsed ? "M" : "ManifiX"}
+        </h2>
 
-        <div className="sidebar-menu flex-1 flex flex-col mt-4">
-          {menuItems.map((item) => (
-            <button
-              key={item.name}
-              className={`sidebar-btn flex items-center gap-2 p-3 rounded-md m-1 hover:bg-gray-100 transition-colors ${
-                location.pathname === item.path ? "bg-blue-100 font-semibold" : ""
-              }`}
-              onClick={() => navigate(item.path)}
-            >
-              <span className="sidebar-icon">{/* icon placeholder */}</span>
-              {!sidebarCollapsed && <span>{item.name}</span>}
-            </button>
-          ))}
-        </div>
+        {menuItems.map((item) => (
+          <div
+            key={item.name}
+            onClick={() => navigate(item.path)}
+            style={{
+              padding: "10px",
+              cursor: "pointer",
+              background:
+                location.pathname === item.path ? "#1f2937" : "transparent",
+              marginBottom: "8px",
+              borderRadius: "6px",
+            }}
+          >
+            {sidebarCollapsed ? item.name[0] : item.name}
+          </div>
+        ))}
 
         <button
-          className="logout-btn m-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
           onClick={handleLogout}
+          style={{
+            marginTop: "20px",
+            padding: "8px",
+            width: "100%",
+            background: "#dc2626",
+            border: "none",
+            color: "white",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
         >
           Logout
+        </button>
+
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          style={{
+            marginTop: "10px",
+            padding: "6px",
+            width: "100%",
+            background: "#374151",
+            border: "none",
+            color: "white",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Toggle
         </button>
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* TopBar */}
-        {TopBar && (
-          <TopBar
-            onMagicClick={() => setMagicOpen(true)}
-            onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
-          />
-        )}
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4">
-          <Outlet />
-        </main>
-
-        {/* Chat Section */}
-        {chatOpen && ChatBox && ChatInput && (
-          <div className="chat-container fixed bottom-20 right-6 w-80 md:w-96 bg-white border shadow-lg rounded-lg flex flex-col overflow-hidden">
-            <ChatBox />
-            <ChatInput
-              value={chatInput}
-              onChange={setChatInput}
-              onSend={() => setChatInput("")}
-            />
-          </div>
-        )}
-
-        {/* Mobile Bottom Navigation */}
-        {BottomNav && <BottomNav menuItems={menuItems} />}
-      </div>
-
-      {/* Magic16 Modal */}
-      {magicOpen && Modal && (
-        <Modal onClose={() => setMagicOpen(false)}>
-          <h2 className="text-xl font-bold mb-2">Magic16 Ritual</h2>
-          <p className="mb-4">8 Minutes Yoga + 8 Minutes Meditation</p>
-          {Magic16Controls && <Magic16Controls />}
-          {Magic16Timer && <Magic16Timer />}
-        </Modal>
-      )}
-
-      {/* Chat Toggle Button */}
-      <button
-        className="chat-toggle-btn fixed bottom-24 right-6 p-3 bg-blue-500 rounded-full shadow-lg text-white hover:bg-blue-600 transition-colors"
-        onClick={() => setChatOpen(!chatOpen)}
-      >
-        {chatOpen ? "Close Chat" : "Open Chat"}
-      </button>
-    </div>
-  );
-}
-anifiX</h1>
-        </div>
-      </header>
-
-      <div className="main-body">
-
-        <aside className="left-sidebar">
-          <button className="side-btn">
-            <img src={Icons.profile} alt="Profile" />
-            <span>Profile</span>
-          </button>
-
-          <button className="side-btn">
-            <img src={Icons.feed} alt="Vibe" />
-            <span>Vibe</span>
-          </button>
-        </aside>
-
-        <main className="center-content">
-          <div className="star-container">
-            <img src={Icons.starFilled} alt="Star" className="center-star" />
-          </div>
-
-          <Outlet />
-
-          <div className="chat-bar">
-            <input
-              type="text"
-              placeholder="Type your message..."
-              className="chat-input"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-            />
-            <button className="send-btn">
-              <img src={Icons.send} alt="Send" />
-            </button>
-          </div>
-        </main>
-      </div>
-
-      <button
-        className="magic16-btn"
-        onClick={() => setShowMagic(true)}
-      >
-        <img src={Icons.magic16} alt="Magic16" />
-        Magic16
-      </button>
-
-      {showMagic && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h2>Magic16 Ritual</h2>
-            <p>8 Minutes Yoga + 8 Minutes Meditation</p>
-            <button
-              className="close-btn"
-              onClick={() => setShowMagic(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <main style={{ flex: 1, padding: "20px", overflow: "auto" }}>
+        <Outlet />
+      </main>
 
     </div>
   );
