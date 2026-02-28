@@ -1,4 +1,5 @@
 // src/AppRouter.jsx
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./components/Layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
