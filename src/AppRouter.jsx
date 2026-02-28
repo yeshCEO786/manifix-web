@@ -3,61 +3,61 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./components/Layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { useApp } from "./context/AppContext";
 
-// PUBLIC PAGES
+// Public Pages
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 
-// MAIN APP PAGES
-
+// App Pages
 import Gpt from "./pages/Gpt";
 import Magic16 from "./pages/Magic16";
-import Vibe from "./pages/Vibe";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Billing from "./pages/Billing";
 
-export default function AppRouter({ user }) {
+export default function AppRouter() {
+  const { user } = useApp(); // ✅ Use context directly
+
   return (
     <Routes>
-
-      {/* ================= PUBLIC ROUTES ================= */}
-    
+      {/* Public Routes */}
+      <Route
+        path="/"
+        element={user ? <Navigate to="/app/gpt" replace /> : <Landing />}
+      />
       <Route
         path="/login"
-        element={user ? <Navigate to="/app/dashboard" replace /> : <Login />}
+        element={user ? <Navigate to="/app/gpt" replace /> : <Login />}
       />
-
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/signup"
+        element={user ? <Navigate to="/app/gpt" replace /> : <Signup />}
+      />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* ================= PROTECTED APP ROUTES ================= */}
+      {/* Protected App Routes */}
       <Route
         path="/app"
         element={
-          <ProtectedRoute user={user}>
+          <ProtectedRoute>
             <MainLayout />
           </ProtectedRoute>
         }
       >
-        {/* Redirect /app → /app/dashboard */}
-        <Route index element={<Navigate to="dashboard" replace />} />
-
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route index element={<Navigate to="gpt" replace />} />
         <Route path="gpt" element={<Gpt />} />
         <Route path="magic16" element={<Magic16 />} />
-        <Route path="vibe" element={<Vibe />} />
         <Route path="profile" element={<Profile />} />
         <Route path="settings" element={<Settings />} />
         <Route path="billing" element={<Billing />} />
       </Route>
 
-      {/* ================ 404 =============== */}
+      {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
-
     </Routes>
   );
 }
