@@ -1,7 +1,15 @@
-// src/App.jsx
 import React from "react";
-import AppRouter from "./AppRouter";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { AppProvider } from "./context/AppContext";
+import App from "./App";
 
-export default function App() {
-  return <AppRouter />;
-}
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <AppProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </AppProvider>
+  </React.StrictMode>
+);
