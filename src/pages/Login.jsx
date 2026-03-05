@@ -1,13 +1,15 @@
+// src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/auth.service";
+import { useApp } from "../context/AppContext";
 
 import logo from "../assets/logo.svg";
 import bgImage from "../assets/backgrounds/dark-gradient.jpg";
 
 import "../styles/Login.css";
 
-export default function Login() {
+export default function Login({ setUser }) {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -20,7 +22,10 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await authService.login(email.trim(), password);
-      if (user) navigate("/app", { replace: true });
+      if (user) {
+        setUser(user); // Update App state
+        navigate("/app/gpt", { replace: true });
+      }
     } catch (err) {
       setError(err?.message || "Login failed");
     } finally {
@@ -31,8 +36,11 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await authService.loginWithGoogle();
-      // Google OAuth redirect handles navigation automatically
+      const user = await authService.loginWithGoogle();
+      if (user) {
+        setUser(user);
+        navigate("/app/gpt", { replace: true });
+      }
     } catch {
       setError("Google sign-in failed");
     } finally {
@@ -66,7 +74,6 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
         />
-
         <input
           type="password"
           placeholder="Password"
